@@ -1,0 +1,38 @@
+{
+  "started_at_utc": "2026-07-21T12:52:54.467053+00:00",
+  "finished_at_utc": "2026-07-21T12:53:58.837232+00:00",
+  "python": "3.9.6 (default, Apr 17 2026, 18:15:52) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.5.1-arm64-arm-64bit",
+  "numpy": "1.26.4",
+  "pandas": "2.2.3",
+  "scipy": "1.13.1",
+  "scikit_learn": "1.6.1",
+  "script_sha256": "cb75e5dd2c8f34c7922b19b07ef0321dc379869fc092af26d55d0ec7a956e0d2",
+  "features": [
+    "std_rush_order",
+    "avg_rush_order",
+    "std_trades",
+    "std_volume",
+    "avg_volume",
+    "std_price",
+    "avg_price",
+    "avg_price_max",
+    "hour_sin",
+    "hour_cos",
+    "minute_sin",
+    "minute_cos"
+  ],
+  "model": {
+    "class": "RandomForestClassifier",
+    "n_estimators": 200,
+    "max_depth": 5,
+    "min_samples_leaf": 1,
+    "random_state": 1,
+    "n_jobs": -1
+  },
+  "evaluation": {
+    "class": "StratifiedKFold",
+    "n_splits": 5,
+    "shuffle": false
+  }
+}

@@ -1,0 +1,13 @@
+Processing: 5 folds - time freq 25S
+Recall: 0.889589905362776
+Precision: 0.9657534246575342
+F1 score: 0.9261083743842364
+Processing: 5 folds - time freq 15S
+Recall: 0.8548895899053628
+Precision: 0.9678571428571429
+F1 score: 0.9078726968174204
+Processing: 5 folds - time freq 5S
+Recall: 0.7350157728706624
+Precision: 0.9433198380566802
+F1 score: 0.8262411347517731
+0:01:03.312678

@@ -1,0 +1,2 @@
+frequency,rows,positives,precision,recall,f1,average_precision,roc_auc,n_estimators,max_depth,random_state,folds,shuffle,prediction_sha256
+25S,482157,317,0.9657534246575342,0.889589905362776,0.9261083743842364,0.9643708695784525,0.9999041463558986,200,5,1,5,False,004e879c3369cdcf5e7061851f2bf5422733d1678a8c8b2ff298ffbb596e6b1d

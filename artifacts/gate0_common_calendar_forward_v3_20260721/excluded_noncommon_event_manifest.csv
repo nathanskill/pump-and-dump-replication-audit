@@ -1,0 +1,4 @@
+frequency,pump_index,symbol,rows,start,end,positive_rows_post_design_pilot_diagnostic
+25S,299,HC,1,2019-01-26T18:00:00,2019-01-26T18:00:00,0
+15S,299,HC,1,2019-01-26T18:00:00,2019-01-26T18:00:00,0
+5S,327,GRS,1,2020-04-03T15:59:05,2020-04-03T15:59:05,0

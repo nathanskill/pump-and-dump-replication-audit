@@ -1,0 +1,20 @@
+{
+  "frequencies": [
+    "25S",
+    "15S",
+    "5S"
+  ],
+  "common_event_count": 326,
+  "fractions": [
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8
+  ],
+  "primary_fraction": 0.8,
+  "cutoff_basis": "common event interval anchor order; no gt in assignment",
+  "pilot_label_inspection_disclosure": "Positive-event counts were inspected during Gate 0 feasibility. All five windows are now retained; none may be removed based on labels or performance.",
+  "dependence_rule": "Expanding test windows overlap. Report each separately; do not pool them or treat them as independent replicates.",
+  "cross_frequency_rule": "Use identical calendar cutoffs and the intersection event set. AP remains prevalence-sensitive and is not directly compared across frequencies."
+}

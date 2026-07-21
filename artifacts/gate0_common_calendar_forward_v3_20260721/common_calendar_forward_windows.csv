@@ -1,0 +1,16 @@
+frequency,event_fraction,role,common_calendar_cutoff,train_rows,test_rows,purged_rows,excluded_noncommon_rows,train_events,test_events,purged_events,train_positive_events_post_design_pilot_diagnostic,test_positive_events_post_design_pilot_diagnostic,purged_positive_events_post_design_pilot_diagnostic,event_overlap,strict_time_forward,assignment_rule_references_gt,windows_are_independent
+25S,0.4,sensitivity,2019-05-26T06:30:16.250000,248022,229641,4493,1,129,195,2,125,190,2,0,True,False,False
+15S,0.4,sensitivity,2019-05-26T06:30:16.250000,306396,271650,6057,1,129,195,2,125,190,2,0,True,False,False
+5S,0.4,sensitivity,2019-05-26T06:30:16.250000,442891,367712,10703,1,129,195,2,125,190,2,0,True,False,False
+25S,0.5,sensitivity,2019-08-02T07:00:58.750000,290478,189424,2254,1,162,162,2,158,157,2,0,True,False,False
+15S,0.5,sensitivity,2019-08-02T07:00:58.750000,356888,224650,2565,1,162,162,2,158,157,2,0,True,False,False
+5S,0.5,sensitivity,2019-08-02T07:00:58.750000,512443,305717,3146,1,162,162,2,158,157,2,0,True,False,False
+25S,0.6,sensitivity,2019-11-30T07:32:02.500000,316033,166123,0,1,195,131,0,190,127,0,0,True,False,False
+15S,0.6,sensitivity,2019-11-30T07:32:02.500000,385737,198366,0,1,195,131,0,190,127,0,0,True,False,False
+5S,0.6,sensitivity,2019-11-30T07:32:02.500000,548412,272894,0,1,195,131,0,190,127,0,0,True,False,False
+25S,0.7,sensitivity,2020-03-25T03:58:20,349174,129327,3655,1,226,97,3,221,93,3,0,True,False,False
+15S,0.7,sensitivity,2020-03-25T03:58:20,425114,154692,4297,1,226,97,3,221,93,3,0,True,False,False
+5S,0.7,sensitivity,2020-03-25T03:58:20,602537,213037,5732,1,226,97,3,221,93,3,0,True,False,False
+25S,0.8,primary,2020-06-20T04:00:35,399711,82445,0,1,260,66,0,253,64,0,0,True,False,False
+15S,0.8,primary,2020-06-20T04:00:35,486924,97179,0,1,260,66,0,253,64,0,0,True,False,False
+5S,0.8,primary,2020-06-20T04:00:35,689905,131401,0,1,260,66,0,253,64,0,0,True,False,False

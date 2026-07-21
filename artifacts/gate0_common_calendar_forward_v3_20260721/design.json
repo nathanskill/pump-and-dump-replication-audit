@@ -1,0 +1,20 @@
+{
+  "frequencies": [
+    "25S",
+    "15S",
+    "5S"
+  ],
+  "common_event_count": 326,
+  "fractions": [
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8
+  ],
+  "primary_fraction": 0.8,
+  "cutoff_basis": "rank of common event interval anchors; assignment rules do not reference gt",
+  "pilot_label_inspection_disclosure": "Positive-event counts were inspected during Gate 0 feasibility. All five windows, including the 80% primary, are now retained; none may be removed based on labels or performance. This is not claimed as preregistration or label-blind design.",
+  "dependence_rule": "Training windows expand while forward test tails contract and remain nested. Report each separately; do not pool them or treat them as independent replicates.",
+  "cross_frequency_rule": "Use identical calendar cutoffs and the intersection event set. AP remains prevalence-sensitive and is not directly compared across frequencies."
+}

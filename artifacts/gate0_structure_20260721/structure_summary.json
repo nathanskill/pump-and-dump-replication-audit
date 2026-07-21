@@ -1,0 +1,38 @@
+[
+  {
+    "frequency": "25S",
+    "rows": 482157,
+    "events": 327,
+    "positive_rows": 317,
+    "positive_events": 317,
+    "min_date": "2018-01-02T18:14:35",
+    "max_date": "2021-01-19T16:58:20",
+    "event_window_hours_min": 0.0,
+    "event_window_hours_median": 47.923611111111114,
+    "event_window_hours_max": 48.0
+  },
+  {
+    "frequency": "15S",
+    "rows": 584104,
+    "events": 327,
+    "positive_rows": 317,
+    "positive_events": 317,
+    "min_date": "2018-01-02T18:14:30",
+    "max_date": "2021-01-19T16:58:15",
+    "event_window_hours_min": 0.0,
+    "event_window_hours_median": 47.916666666666664,
+    "event_window_hours_max": 48.0
+  },
+  {
+    "frequency": "5S",
+    "rows": 821307,
+    "events": 327,
+    "positive_rows": 317,
+    "positive_events": 317,
+    "min_date": "2018-01-02T18:14:40",
+    "max_date": "2021-01-19T16:58:25",
+    "event_window_hours_min": 0.0,
+    "event_window_hours_median": 47.90833333333333,
+    "event_window_hours_max": 48.0
+  }
+]

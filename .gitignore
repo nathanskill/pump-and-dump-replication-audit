@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Large local predictions are reproducibility evidence, not default release payloads.
+artifacts/**/predictions_*.csv.gz
+
+# macOS
+.DS_Store
+
+# Author correspondence drafts are not release payloads.
+protocol/author_artifact_query_draft_v0.1.md
