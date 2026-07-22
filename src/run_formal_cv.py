@@ -2,7 +2,7 @@
 """Formal S1 (event-exclusive 5-fold) and S0 (row-level 5-fold) comparison runs.
 
 Spec: protocol/formal_cv_and_ablation_spec_v0.1.md (frozen before execution).
-Protocol freeze commit: 23089ceebd93eed421b8a2a710135851dcab536e (v0.2).
+Protocol freeze commit: c2736ed36e6a074ded78e916c071d5d396b316c3 (v0.2).
 
 Both families run on the same row universe as S2: rows of the 326 common
 events from the v3 partition design, so family differences are attributable
@@ -38,7 +38,7 @@ from sklearn.model_selection import GroupKFold, StratifiedKFold
 
 ROOT = Path(__file__).resolve().parents[1]
 
-PROTOCOL_FREEZE_COMMIT = "23089ceebd93eed421b8a2a710135851dcab536e"
+PROTOCOL_FREEZE_COMMIT = "c2736ed36e6a074ded78e916c071d5d396b316c3"
 
 FREQUENCIES = ("25S", "15S", "5S")
 OUTER_FOLDS = 5

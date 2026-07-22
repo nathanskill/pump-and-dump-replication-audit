@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Formal S2 common-calendar forward runs under frozen protocol v0.2.
 
-Protocol freeze commit: 23089ceebd93eed421b8a2a710135851dcab536e (v0.2).
+Protocol freeze commit: c2736ed36e6a074ded78e916c071d5d396b316c3 (v0.2).
 Amendment A1 (author-query waiver, claim boundaries only): d52f8ae.
 
 Design, all frozen before these runs:
@@ -47,7 +47,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 
 ROOT = Path(__file__).resolve().parents[1]
 
-PROTOCOL_FREEZE_COMMIT = "23089ceebd93eed421b8a2a710135851dcab536e"
+PROTOCOL_FREEZE_COMMIT = "c2736ed36e6a074ded78e916c071d5d396b316c3"
 AMENDMENT_A1_COMMIT = "d52f8ae"
 
 FREQUENCIES = ("25S", "15S", "5S")
