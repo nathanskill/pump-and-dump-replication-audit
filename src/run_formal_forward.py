@@ -173,14 +173,24 @@ def event_block(test_frame: pd.DataFrame, scores: np.ndarray, tau: float, bin_se
     }
 
 
-def run_one(frequency: str, fraction: float, upstream: Path, out_root: Path) -> dict:
+TIME_FEATURES = ["hour_sin", "hour_cos", "minute_sin", "minute_cos"]
+
+
+def run_one(
+    frequency: str,
+    fraction: float,
+    upstream: Path,
+    out_root: Path,
+    features: list[str] | None = None,
+) -> dict:
+    features = FEATURES if features is None else features
     bin_seconds = EM.FREQUENCY_BIN_SECONDS[frequency]
     matrix_path = upstream / "labeled_features" / f"features_{frequency}.csv.gz"
     partition_path = PARTITION_DIR / f"event_partition_{int(fraction * 100)}.csv"
 
     frame = pd.read_csv(
         matrix_path,
-        usecols=["date", "pump_index", "gt"] + FEATURES,
+        usecols=["date", "pump_index", "gt"] + features,
         parse_dates=["date"],
     )
     partition = pd.read_csv(partition_path)[["pump_index", "partition"]]
@@ -197,9 +207,9 @@ def run_one(frequency: str, fraction: float, upstream: Path, out_root: Path) -> 
     inner_train_index = inner_frame.loc[inner_rows == "train", "source_row"].to_numpy()
     inner_valid_index = inner_frame.loc[inner_rows == "test", "source_row"].to_numpy()
 
-    x_train = train[FEATURES].to_numpy(dtype=np.float64)
+    x_train = train[features].to_numpy(dtype=np.float64)
     y_train = train["gt"].to_numpy(dtype=int)
-    x_test = test[FEATURES].to_numpy(dtype=np.float64)
+    x_test = test[features].to_numpy(dtype=np.float64)
     y_test = test["gt"].to_numpy(dtype=int)
 
     inner_model = RandomForestClassifier(**RF_PARAMS, n_jobs=-1)
@@ -279,14 +289,26 @@ def main() -> None:
     parser.add_argument("--frequencies", nargs="*", default=list(FREQUENCIES))
     parser.add_argument("--fractions", nargs="*", type=float, default=list(FRACTIONS))
     parser.add_argument("--output-root", type=Path, default=OUTPUT_ROOT)
+    parser.add_argument(
+        "--drop-time-features",
+        action="store_true",
+        help="Ablation: drop the four cyclical time-of-day columns "
+        "(spec: protocol/formal_cv_and_ablation_spec_v0.1.md)",
+    )
     args = parser.parse_args()
 
+    features = (
+        [f for f in FEATURES if f not in TIME_FEATURES]
+        if args.drop_time_features
+        else list(FEATURES)
+    )
     args.output_root.mkdir(parents=True, exist_ok=True)
     config = {
         "protocol_freeze_commit": PROTOCOL_FREEZE_COMMIT,
         "amendment_a1_commit": AMENDMENT_A1_COMMIT,
         "rf_params": RF_PARAMS,
-        "features": FEATURES,
+        "features": features,
+        "ablation_dropped": TIME_FEATURES if args.drop_time_features else [],
         "inner_train_fraction": INNER_TRAIN_FRACTION,
         "tau_star_rule": (
             "chunk-level F1 on label-free expanding-time inner validation within "
@@ -305,7 +327,9 @@ def main() -> None:
     for frequency in args.frequencies:
         for fraction in args.fractions:
             print(f"[run] {frequency} @ {int(fraction*100)}%", flush=True)
-            result = run_one(frequency, fraction, args.upstream, args.output_root)
+            result = run_one(
+                frequency, fraction, args.upstream, args.output_root, features
+            )
             row = result["row_level"]
             print(
                 f"  AP={row['average_precision']:.4f} "
