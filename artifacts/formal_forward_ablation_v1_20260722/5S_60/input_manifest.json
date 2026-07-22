@@ -1,0 +1,6 @@
+{
+  "matrix": "upstream:labeled_features/features_5S.csv.gz",
+  "matrix_sha256": "e1f82b42d735e368f04a60062cadd50d6b097cc1222ebe8830cbff24b6d5ab99",
+  "partition": "artifacts/gate0_common_calendar_forward_v3_20260721/event_partition_60.csv",
+  "partition_sha256": "3526ebaed18e248e01e55140076df65a2b7b933bde8993d7ec8367ce6f6ca04c"
+}

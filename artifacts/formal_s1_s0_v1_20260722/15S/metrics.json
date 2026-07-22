@@ -1,0 +1,146 @@
+{
+  "S0": {
+    "family": "S0_ROW_5FOLD",
+    "n_rows": 584103,
+    "prevalence": 0.0005427125010486164,
+    "pooled_oof_average_precision": 0.9462234188337225,
+    "pooled_oof_roc_auc": 0.9997659707009225,
+    "per_fold_average_precision": [
+      0.9429418349212508,
+      0.9479082618696677,
+      0.9384529182344018,
+      0.972209268143553,
+      0.9350558941725049
+    ],
+    "at_tau_anchor": {
+      "precision": 0.9679715302491103,
+      "recall": 0.8580441640378549,
+      "f1": 0.9096989966555183,
+      "tp": 272,
+      "fp": 9,
+      "fn": 45
+    },
+    "event_level": "not reported: rows of one event appear in both train and test"
+  },
+  "S1": {
+    "family": "S1_EVENT_5FOLD",
+    "n_rows": 584103,
+    "prevalence": 0.0005427125010486164,
+    "pooled_oof_average_precision": 0.9466075075252328,
+    "pooled_oof_roc_auc": 0.9997706988930443,
+    "folds": [
+      {
+        "fold": 0,
+        "tau_star_fold": 0.4883824942602936,
+        "tau_star_fallback": false,
+        "fold_average_precision": 0.9647817585278518,
+        "n_test_events": 63,
+        "n_eligible_test_events": 63
+      },
+      {
+        "fold": 1,
+        "tau_star_fold": 0.48204832021495714,
+        "tau_star_fallback": false,
+        "fold_average_precision": 0.936370681469876,
+        "n_test_events": 64,
+        "n_eligible_test_events": 64
+      },
+      {
+        "fold": 2,
+        "tau_star_fold": 0.38865163510269646,
+        "tau_star_fallback": false,
+        "fold_average_precision": 0.9513881541490854,
+        "n_test_events": 64,
+        "n_eligible_test_events": 64
+      },
+      {
+        "fold": 3,
+        "tau_star_fold": 0.5174767503706214,
+        "tau_star_fallback": false,
+        "fold_average_precision": 0.9349430385280324,
+        "n_test_events": 67,
+        "n_eligible_test_events": 63
+      },
+      {
+        "fold": 4,
+        "tau_star_fold": 0.4794907062915833,
+        "tau_star_fallback": false,
+        "fold_average_precision": 0.954767042624744,
+        "n_test_events": 68,
+        "n_eligible_test_events": 63
+      }
+    ],
+    "at_tau_anchor_rowlevel": {
+      "precision": 0.9679715302491103,
+      "recall": 0.8580441640378549,
+      "f1": 0.9096989966555183,
+      "tp": 272,
+      "fp": 9,
+      "fn": 45
+    },
+    "event_level_at_tau_anchor": {
+      "n_eligible_events": 317,
+      "edr_exact": 0.8454258675078864,
+      "edr_exact_ci95": [
+        0.804416403785489,
+        0.886435331230284
+      ],
+      "edr_at": {
+        "30": 0.8454258675078864,
+        "60": 0.8454258675078864,
+        "120": 0.8454258675078864
+      },
+      "edr_at_120_ci95": [
+        0.804416403785489,
+        0.886435331230284
+      ],
+      "lead_at": {
+        "30": 0.00946372239747634,
+        "60": 0.012618296529968454,
+        "120": 0.012618296529968454
+      },
+      "delay_median_s": 15.0,
+      "delay_q25_s": 15.0,
+      "delay_q75_s": 15.0,
+      "delay_p90_s": 15.0,
+      "n_detected_within_120s": 268,
+      "benchmark_negative_mean": 0.028391167192429023,
+      "benchmark_negative_mean_ci95": [
+        0.012618296529968454,
+        0.0473186119873817
+      ]
+    },
+    "event_level_at_tau_star_fold": {
+      "n_eligible_events": 317,
+      "edr_exact": 0.8422712933753943,
+      "edr_exact_ci95": [
+        0.8011829652996846,
+        0.8802050473186115
+      ],
+      "edr_at": {
+        "30": 0.8422712933753943,
+        "60": 0.8422712933753943,
+        "120": 0.8422712933753943
+      },
+      "edr_at_120_ci95": [
+        0.8011829652996846,
+        0.8802050473186115
+      ],
+      "lead_at": {
+        "30": 0.012618296529968454,
+        "60": 0.015772870662460567,
+        "120": 0.015772870662460567
+      },
+      "delay_median_s": 15.0,
+      "delay_q25_s": 15.0,
+      "delay_q75_s": 15.0,
+      "delay_p90_s": 15.0,
+      "n_detected_within_120s": 267,
+      "benchmark_negative_mean": 0.03470031545741325,
+      "benchmark_negative_mean_ci95": [
+        0.015772870662460567,
+        0.056782334384858045
+      ]
+    }
+  }
+}

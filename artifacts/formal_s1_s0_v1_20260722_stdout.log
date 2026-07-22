@@ -1,0 +1,10 @@
+[cv] 25S
+  S0 pooled AP=0.9649
+  S1 pooled AP=0.9636 EDR@120(anchor)=0.886
+[cv] 15S
+  S0 pooled AP=0.9462
+  S1 pooled AP=0.9466 EDR@120(anchor)=0.845
+[cv] 5S
+  S0 pooled AP=0.9025
+  S1 pooled AP=0.9007 EDR@120(anchor)=0.710
+[done]

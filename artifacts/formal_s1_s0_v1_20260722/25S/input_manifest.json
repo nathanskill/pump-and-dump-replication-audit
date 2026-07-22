@@ -1,0 +1,5 @@
+{
+  "matrix": "upstream:labeled_features/features_25S.csv.gz",
+  "matrix_sha256": "0d43d1d396ef13778ab2cd2a9f047034713f9066bdc07c23efce335da8185331",
+  "universe_manifest": "artifacts/gate0_common_calendar_forward_v3_20260721/canonical_common_event_manifest.csv"
+}

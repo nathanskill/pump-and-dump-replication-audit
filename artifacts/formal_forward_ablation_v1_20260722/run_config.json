@@ -1,0 +1,36 @@
+{
+  "protocol_freeze_commit": "23089ceebd93eed421b8a2a710135851dcab536e",
+  "amendment_a1_commit": "d52f8ae",
+  "rf_params": {
+    "n_estimators": 200,
+    "max_depth": 5,
+    "min_samples_leaf": 1,
+    "random_state": 1
+  },
+  "features": [
+    "std_rush_order",
+    "avg_rush_order",
+    "std_trades",
+    "std_volume",
+    "avg_volume",
+    "std_price",
+    "avg_price",
+    "avg_price_max"
+  ],
+  "ablation_dropped": [
+    "hour_sin",
+    "hour_cos",
+    "minute_sin",
+    "minute_cos"
+  ],
+  "inner_train_fraction": 0.8,
+  "tau_star_rule": "chunk-level F1 on label-free expanding-time inner validation within outer train; candidates = unique inner OOF scores + 0.5; ties -> higher tau; fallback to 0.5 if the inner tail has no positives",
+  "bootstrap": {
+    "n_boot": 2000,
+    "seed": 20260722,
+    "cluster": "pump_index"
+  },
+  "primary_fraction": 0.8,
+  "python": "3.9.6",
+  "platform": "macOS-26.5.1-arm64-arm-64bit"
+}
