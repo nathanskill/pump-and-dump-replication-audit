@@ -2,7 +2,7 @@
 """Formal S2 common-calendar forward runs under frozen protocol v0.2.
 
 Protocol freeze commit: c2736ed36e6a074ded78e916c071d5d396b316c3 (v0.2).
-Amendment A1 (author-query waiver, claim boundaries only): d52f8ae.
+Amendment A1 (author-query waiver, claim boundaries only): 9a8cf73 (pre-rewrite d52f8ae; see amendment A3).
 
 Design, all frozen before these runs:
 - three frequencies x five expanding common-calendar checkpoints from the v3
@@ -48,7 +48,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 ROOT = Path(__file__).resolve().parents[1]
 
 PROTOCOL_FREEZE_COMMIT = "c2736ed36e6a074ded78e916c071d5d396b316c3"
-AMENDMENT_A1_COMMIT = "d52f8ae"
+AMENDMENT_A1_COMMIT = "9a8cf73b7b318b52161d1eb953a2167502dcaa6e"
 
 FREQUENCIES = ("25S", "15S", "5S")
 FRACTIONS = (0.40, 0.50, 0.60, 0.70, 0.80)

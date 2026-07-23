@@ -19,8 +19,8 @@ This repository contains a newly written, independent re-implementation and eval
 ## Current evidence state (honest boundary)
 
 - **Verified**: the aggregate precision, recall and F1 of this repository's newly written RF implementation match the outputs of the released upstream script at 25S/15S/5S on the released feature matrices; purged time-forward split structures have manifests and verification artifacts; a documented initial citation-forward screen is complete.
-- **Formal results (frozen protocol, commit `c2736ed`)**: three evaluation families on the identical 326-common-event universe — pooled OOF AP 0.9649/0.9462/0.9025 (S0 row-level), 0.9636/0.9466/0.9007 (S1 event-exclusive), 0.9781/0.9572/0.9072 (S2 forward @80%, 25S/15S/5S); event-level EDR and delay under the frozen specification; time-of-day ablation lowers forward AP by 0.010–0.027. See `artifacts/formal_*`.
-- **Candidate, not frozen**: event-level outcome metrics have a written pre-freeze specification (benchmark onset bins, training-side thresholds, cooldown handling, exact/post-onset/lead windows, delay, benchmark-negative episodes). Protocol v0.2 and unit tests must pass before outer test runs.
+- **Formal results (frozen protocol, commit `c2736ed`; archived run configs carry the pre-rewrite identifier `23089ce` — see `protocol/amendment_A3_metadata_rewrite.md` for the authoritative map)**: three evaluation families on the identical 326-common-event universe — pooled OOF AP 0.9649/0.9462/0.9025 (S0 row-level), 0.9636/0.9466/0.9007 (S1 event-exclusive), 0.9781/0.9572/0.9072 (S2 forward @80%, 25S/15S/5S); event-level EDR and delay under the frozen specification; time-of-day ablation lowers forward AP by 0.010–0.028. See `artifacts/formal_*`.
+- **Frozen**: the event-level outcome specification (benchmark onset bins, training-side thresholds, cooldown handling, exact/post-onset/lead windows, delay, benchmark-negative episodes) is locked in `protocol/locked_protocol_v0.2.md`; the 20-test suite passed before and after the formal runs.
 - **Unresolved**: exact replication of the published Table III — the paper's described parameters, the released code, and the post-paper released matrices differ; the public upstream repository does not expose an end-to-end label-generation process.
 - **Not completed**: manuscript, preprint, formal submission, peer review, or publication. No claim of priority or of being the first replication is made.
 
@@ -33,6 +33,27 @@ The upstream feature matrices cover approximately ±24 hours around known events
 - `tests/` — split-invariant and protocol unit tests
 - `artifacts/` — run manifests, configurations, aggregate metrics, split/partition manifests, environment records
 - `paper/` — manuscript outline (work in progress)
+
+## Reproducing the results
+
+1. Clone the upstream dataset repository at pinned commit `d71250d` and verify file hashes against `protocol/source_and_licence_audit_v0.1.md` and the `input_manifest.json` files under `artifacts/`.
+2. Install pinned dependencies: `python3.9 -m venv .venv && .venv/bin/pip install -r requirements.txt`.
+3. Run the test suite: `.venv/bin/python -m unittest discover -s tests` (20 tests; upstream-dependent invariants auto-skip if the matrices are absent; set `PUMP_AUDIT_UPSTREAM=/path/to/pump-and-dump-dataset` to enable them).
+4. Re-run the formal experiments with explicit flags (the runners refuse to overwrite committed artifacts — point `--output-root` at a fresh directory):
+   - `.venv/bin/python src/run_formal_cv.py --upstream /path/to/pump-and-dump-dataset --output-root artifacts_rerun`
+   - `.venv/bin/python src/run_formal_forward.py --upstream /path/to/pump-and-dump-dataset --output-root artifacts_rerun`
+   - `.venv/bin/python src/run_formal_forward.py --drop-time-features --upstream /path/to/pump-and-dump-dataset --output-root artifacts_rerun_ablation`
+5. Compare regenerated `summary.csv`/`metrics.json` against the committed artifacts. Note: fresh runs stamp the current freeze SHA (`c2736ed`); archived configs carry the pre-rewrite identifier (`23089ce`) — amendment A3 is the authoritative map.
+
+## Claims → artifacts map
+
+| Manuscript claim | Artifact directory |
+|---|---|
+| §4.1 code-level replication (released script vs re-implementation) | `gate0_upstream_stdout_capture_20260721`, `gate0_released_code_rf_all_v2_20260721`, `gate0_baseline_comparison_20260721` |
+| §4.2 Table III traceability (paper-described configuration) | `gate0_paper_described_rf_all_20260721` |
+| §4.3 S0 / S1 family comparison | `formal_s1_s0_v1_20260722` |
+| §4.3–4.4 S2 forward checkpoints | `formal_forward_v1_20260722` |
+| §4.5 / Appendix A time-of-day ablation | `formal_forward_ablation_v1_20260722` |
 
 ## Redistribution boundary
 

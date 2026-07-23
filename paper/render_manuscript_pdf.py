@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render the manuscript markdown draft to a clean academic-style PDF.
 
-Supports the markdown subset used by manuscript_draft_v0.1.md:
+Supports the markdown subset used by manuscript_draft_v0.3.md:
 #/##/### headings, paragraphs, pipe tables, **bold**, *italic*, `code`.
 Local tooling only; not part of the research pipeline.
 """
@@ -21,8 +21,8 @@ from reportlab.platypus import (
 )
 
 BASE = Path(__file__).resolve().parent
-SRC = BASE / "manuscript_draft_v0.1.md"
-OUT = BASE / "manuscript_draft_v0.1.pdf"
+SRC = BASE / "manuscript_draft_v0.3.md"
+OUT = BASE / "manuscript_draft_v0.3.pdf"
 
 S = {
     "title": ParagraphStyle("title", fontName="Times-Bold", fontSize=15.5,
