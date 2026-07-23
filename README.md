@@ -55,6 +55,10 @@ The upstream feature matrices cover approximately ±24 hours around known events
 | §4.3–4.4 S2 forward checkpoints | `formal_forward_v1_20260722` |
 | §4.5 / Appendix A time-of-day ablation | `formal_forward_ablation_v1_20260722` |
 
+## Archival (Zenodo)
+
+To mint a persistent, tamper-evident DOI for the frozen release (an anchor independent of the rewritten Git history and of upstream's availability): sign in at zenodo.org with GitHub, enable this repository under Settings → GitHub, then publish a GitHub release of tag `v0.1.0-protocol-freeze`. Zenodo archives the release automatically and reads `CITATION.cff`. Paste the resulting DOI badge here and into the manuscript's Data-availability statement.
+
 ## Redistribution boundary
 
 This repository deliberately does **not** re-upload the upstream labelled feature matrices, raw transaction records, Telegram group list, or event file. To reproduce, acquire the upstream inputs from the original repository at the pinned commit and verify against the hashes in `protocol/source_and_licence_audit_v0.1.md` and the run manifests. Upstream notices are preserved in `THIRD_PARTY_NOTICES.md`. Large per-row prediction files are reproducibility evidence generated locally and are not committed.

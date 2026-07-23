@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "Replication and Evaluation-Sensitivity Audit of \"Pump and Dumps in the Bitcoin Era\""
+message: "If you use this repository, please cite it using these metadata."
+type: software
+authors:
+  - given-names: Zhennan
+    family-names: Yu
+    alias: Nathan
+    city: Sydney
+    country: AU
+repository-code: "https://github.com/nathanskill/pump-and-dump-replication-audit"
+abstract: >-
+  A newly written, independent re-implementation and evaluation-sensitivity
+  audit of the random-forest pump-and-dump detection baseline released with
+  La Morgia et al. (ICCCN 2020). Compares row-level, event-exclusive, and
+  purged forward-time evaluation on an identical event universe under a
+  pre-frozen event-level outcome specification with cluster-bootstrap
+  uncertainty. No upstream labelled matrices, raw transactions, Telegram
+  group list, or event file are redistributed.
+keywords:
+  - reproducibility
+  - evaluation methodology
+  - cryptocurrency market manipulation
+  - pump and dump
+  - forward-time evaluation
+  - leakage
+license: MIT
+version: v0.1.0-protocol-freeze
+date-released: "2026-07-23"
