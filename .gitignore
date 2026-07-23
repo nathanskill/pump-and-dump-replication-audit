@@ -13,3 +13,4 @@ protocol/author_artifact_query_draft_v0.1.md
 
 # Manuscript drafts stay local until the preprint/release decision.
 paper/manuscript_draft*
+paper/figures/
