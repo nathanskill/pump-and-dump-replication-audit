@@ -11,3 +11,6 @@ frequency,configuration,precision,recall,f1,average_precision,roc_auc,evidence_s
 25S,paper_reported_tree_constraints_plus_released_cv_assumptions_on_current_extended_matrices,0.9685314685314685,0.8738170347003155,0.9187396351575456,0.9582443579156725,0.9998868035307347,verified_local_run
 15S,paper_reported_tree_constraints_plus_released_cv_assumptions_on_current_extended_matrices,0.9713261648745519,0.8548895899053628,0.9093959731543624,0.9397280273302503,0.9997501897744465,verified_local_run
 5S,paper_reported_tree_constraints_plus_released_cv_assumptions_on_current_extended_matrices,0.960352422907489,0.6876971608832808,0.8014705882352942,0.8906336090522652,0.9993260963729141,verified_local_run
+25S,journal_toit_5fold_cv,0.982,0.912,0.945,,,verified_from_toit_pdf
+15S,journal_toit_5fold_cv,0.964,0.849,0.900,,,verified_from_toit_pdf
+5S,journal_toit_5fold_cv,0.946,0.729,0.824,,,verified_from_toit_pdf

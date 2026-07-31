@@ -2,9 +2,9 @@
 
 Status: `FORMAL RUNS COMPLETE (S0 / S1 / S2 + time-feature ablation) / MANUSCRIPT IN PREPARATION / NOT SUBMITTED`
 
-Working title (neutral while the 2020 published table remains unresolved):
+Working title:
 
-> A Replication Attempt and Evaluation-Sensitivity Audit of "Pump and Dumps in the Bitcoin Era"
+> Replication and Evaluation-Sensitivity Audit of "Pump and Dumps in the Bitcoin Era"
 
 This repository contains a newly written, independent re-implementation and evaluation audit of the random-forest detection baseline released with:
 
@@ -54,14 +54,15 @@ The upstream feature matrices cover approximately ±24 hours around known events
 | §4.3 S0 / S1 family comparison | `formal_s1_s0_v1_20260722` |
 | §4.3–4.4 S2 forward checkpoints | `formal_forward_v1_20260722` |
 | §4.5 / Appendix A time-of-day ablation | `formal_forward_ablation_v1_20260722` |
+| §4.3 CIs, paired ΔAP, matched-universe comparison; §4.4 full outcome set | `a4_addendum_v1_20260723` |
 
 ## Archival (Zenodo)
 
-To mint a persistent, tamper-evident DOI for the frozen release (an anchor independent of the rewritten Git history and of upstream's availability): sign in at zenodo.org with GitHub, enable this repository under Settings → GitHub, then publish a GitHub release of tag `v0.1.0-protocol-freeze`. Zenodo archives the release automatically and reads `CITATION.cff`. Paste the resulting DOI badge here and into the manuscript's Data-availability statement.
+To mint a persistent, tamper-evident DOI for the frozen release (an anchor independent of the rewritten Git history and of upstream's availability): sign in at zenodo.org with GitHub, enable this repository under Settings → GitHub, then publish a GitHub release of tag `v0.2.0-results-freeze` — a results-complete tag whose tree contains the frozen protocol, all `artifacts/formal_*` and `artifacts/a4_addendum_*` directories cited in the manuscript, and `CITATION.cff`. Zenodo archives the release automatically and reads `CITATION.cff`. Paste the resulting DOI badge here and into the manuscript's Data-availability statement. (`v0.1.0-protocol-freeze` at `c2736ed` remains the protocol anchor only; it predates the results and is not the archived release.)
 
 ## Redistribution boundary
 
-This repository deliberately does **not** re-upload the upstream labelled feature matrices, raw transaction records, Telegram group list, or event file. To reproduce, acquire the upstream inputs from the original repository at the pinned commit and verify against the hashes in `protocol/source_and_licence_audit_v0.1.md` and the run manifests. Upstream notices are preserved in `THIRD_PARTY_NOTICES.md`. Large per-row prediction files are reproducibility evidence generated locally and are not committed.
+This repository deliberately does **not** re-upload the upstream labelled feature matrices, raw transaction records, Telegram group list, or event file. To reproduce, acquire the upstream inputs from the original repository at the pinned commit and verify against the hashes in `protocol/source_and_licence_audit_v0.1.md` and the run manifests. Upstream notices are preserved in `THIRD_PARTY_NOTICES.md`. Large per-row prediction files are reproducibility evidence generated locally and are not committed; regenerating the figures in `paper/figures/` therefore requires first re-running `src/run_formal_cv.py` and `src/run_formal_forward.py` to produce them.
 
 ## Related work by the same author
 
