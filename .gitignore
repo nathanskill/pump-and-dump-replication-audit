@@ -14,3 +14,8 @@ protocol/author_artifact_query_draft_v0.1.md
 # Manuscript drafts stay local until the preprint/release decision.
 paper/manuscript_draft*
 paper/figures/
+
+# LNCS class/bst are Springer's redistributable author-kit files kept locally
+# for Overleaf upload; not part of this repository's licensed content.
+paper/latex/llncs.cls
+paper/latex/splncs04.bst

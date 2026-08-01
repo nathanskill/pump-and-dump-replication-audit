@@ -1,0 +1,904 @@
+% ======================================================================
+% Replication and Evaluation-Sensitivity Audit of
+% "Pump and Dumps in the Bitcoin Era"
+% Springer LNCS (llncs.cls) project for Financial Cryptography 2027
+% (submission deadline 17 Sep 2026; double-blind).
+%
+% HOW TO BUILD (Overleaf):
+%   * Upload this whole latex/ folder as a project; compiler: pdfLaTeX;
+%     root document: main.tex.
+%   * llncs.cls v2.24 and splncs04.bst (official Springer LNCS author
+%     kit, downloaded 2026-08-01 from
+%     https://resource-cms.springernature.com/springer-cms/rest/v1/content/19238648/data/)
+%     are included in this folder. Overleaf also provides the class
+%     built-in via its "Springer Lecture Notes in Computer Science"
+%     template, so the local copy is a pinned convenience, not a hard
+%     requirement. splncs04.bst is unused while references are inline
+%     \bibitem entries; it is kept for a possible later switch to BibTeX.
+%
+% TWO BUILDS FROM ONE SOURCE:
+%   * \anonymoustrue  -> anonymized FC 2027 submission build (default).
+%   * \anonymousfalse -> named build (Zhennan Yu, Independent Researcher).
+%   * See ANONYMIZATION_NOTES.md for the complete list of redactions.
+%   * \neutralpositionalitytrue additionally neutralizes the
+%     industry-experience clauses in Sect. 5.2/5.3 (default OFF: the
+%     FC 2027 CFP requires no author names, affiliations,
+%     acknowledgments, or obvious references, but does not clearly
+%     require removing non-identifying positionality detail).
+%
+% Source of truth: paper/manuscript_draft_v0.5.md (2 Aug 2026).
+% The draft-status banner of v0.5 is omitted as draft metadata; its
+% protocol-freeze statement is retained in Sect. 8 (see notes file).
+% ======================================================================
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{cite}          % compresses [7,8,9,10] -> [7-10]
+
+% ----------------------- build toggles --------------------------------
+\newif\ifanonymous
+\anonymoustrue             % <<< FLIP HERE: \anonymoustrue = double-blind
+%\anonymousfalse           %                \anonymousfalse = named build
+
+\newif\ifneutralpositionality
+\neutralpositionalityfalse % see header note and ANONYMIZATION_NOTES.md
+
+% Repository link: redacted in the anonymized build.
+\newcommand{\repolink}{%
+\ifanonymous
+[link redacted for review; artifacts available to reviewers on request]%
+\else
+\url{github.com/nathanskill/pump-and-dump-replication-audit}%
+\fi}
+
+% Sect. 5.2 industry-experience clause (removed only if
+% \neutralpositionalitytrue).
+\newcommand{\industryclause}{%
+\ifneutralpositionality\else{} --- from several years working in the
+retail-trading industry, where coordinated promotional campaigns are
+observed operationally ---\fi}
+
+% ----------------------------------------------------------------------
+
+\begin{document}
+
+\title{Replication and Evaluation-Sensitivity Audit of ``Pump and Dumps
+in the Bitcoin Era''}
+\titlerunning{Replication and Evaluation-Sensitivity Audit}
+
+\ifanonymous
+\author{Anonymous Submission to FC 2027}
+\authorrunning{Anonymous Submission to FC 2027}
+\institute{}
+\else
+\author{Zhennan Yu}
+\authorrunning{Z. Yu}
+\institute{Independent Researcher, Sydney, Australia\\
+\email{yuzhennan323@gmail.com}}
+\fi
+
+\maketitle
+
+\begin{abstract}
+Reported scores for cryptocurrency pump-and-dump classifiers are usually
+produced by row-level cross-validation, in which rows densely sampled
+from the same short event window may fall on both sides of a split.
+Whether this evaluation is robust to the choice of evaluation unit and
+to time order has not been tested for the widely used random-forest
+baseline released with La Morgia et al.'s ICCCN 2020 study. We audit
+that baseline under a pre-frozen protocol and report three findings.
+First, a newly written implementation reproduces the released classifier
+script's aggregate precision, recall and F1 exactly at all three feature
+frequencies (5\,s, 15\,s, 25\,s) on the released matrices. The published
+Table~III values, however, cannot be recovered from currently public
+materials: the paper-described parameters, the released code, and the
+post-paper matrices differ (the same authors' journal extension tracks
+the released artifact far more closely); we document the differences and
+leave their cause open. Second, on an identical universe of 326 common
+events, discrimination is largely insensitive to the evaluation family
+across upstream-style row-level, event-exclusive, and purged
+forward-time evaluation: the paired difference in average precision
+between row-level and event-exclusive families has a 95\%
+cluster-bootstrap interval covering zero at every frequency, and a
+matched-universe comparison shows the forward family's nominally higher
+score to be a test-composition effect. Third, event-level detection
+nonetheless degrades at the finest frequency (event detection rate
+0.64--0.92 at the released decision threshold), and ablating the four
+time-of-day features lowers forward average precision by only
+0.010--0.028. All conclusions are restricted to the event-centred public
+benchmark; no real-market prevalence, false-alert or deployment claim is
+made. Code, protocols and hash-verified aggregate artifacts are public.
+
+\keywords{Cryptocurrency pump-and-dump \and Replication \and Evaluation
+methodology \and Machine learning for security \and Fraud detection.}
+% NOTE: the markdown source has no keyword list; these keywords were
+% added because the LNCS format requires them -- author to confirm.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+
+Pump-and-dump operations coordinate rapid purchases of thinly traded
+crypto assets to attract victims into buying at inflated
+prices~\cite{Kamps2018,Xu2019,Victor2019,Hamrick2021}. The market-data
+detector of La Morgia et al.~\cite{LaMorgia2020} is one of the most
+widely used public baselines in this space: its labelled feature
+matrices and classifier script are openly released and have anchored
+subsequent studies that reuse the released
+artifact~\cite{Akyildirim2022,Chadalapaka2022,Moura2026,Losavio2026} as
+well as adjacent detection work on independently collected
+data~\cite{Nghiem2021,Hu2023}.
+
+Reported scores for such detectors are usually produced by row-level
+cross-validation over feature rows that are densely sampled from short
+windows around known events. Rows from a single event share the same
+episode, so a split that mixes them across training and test sets
+answers a different question than a deployment setting, which concerns
+\emph{new events at later times}~\cite{Kapoor2023}. To our knowledge,
+whether this distinction matters \emph{for this benchmark} has not been
+quantified on the released matrices and classifier. The nearest works
+are the original authors' journal extension, which stress-tests its
+trained detector on multi-year single-coin market streams and on later
+out-of-domain crowd-pump events but contains no chronological
+train-early/test-later split of the pump events~\cite{LaMorgia2023}; a
+partial re-implementation that evaluates the baseline under a
+non-shuffled row-level split~\cite{Chadalapaka2022}; a
+chronological-split study on a rebuilt hourly panel derived from the
+same upstream repository~\cite{Losavio2026}; and an unsupervised
+low-latency detector whose comparison with prior work notes, in
+passing, that several published detectors train on data from after the
+pump so that their reported detection latencies are theoretical lower
+bounds~\cite{Bello2023} --- an observation this audit systematizes.
+None combines event-exclusive and purged forward-time evaluation with a
+pre-frozen event-level outcome specification and cluster-bootstrap
+uncertainty.
+
+This paper asks one question: \textbf{to what extent can the released
+baseline's results be traced, replicated, and shown to be robust to the
+choice of evaluation family?} Contributions:
+
+\begin{enumerate}
+\item \textbf{A verified re-implementation.} A newly written
+implementation whose aggregate precision, recall and F1 exactly match
+the released classifier script at all three frequencies on the released
+matrices (Section~\ref{sec:replication}).
+\item \textbf{A documented traceability gap.} The published Table~III
+values could not be recovered from the currently public artifact alone;
+we record the parameter, code and matrix differences and leave their
+source open (Section~\ref{sec:tableiii}).
+\item \textbf{A three-family evaluation-sensitivity audit} on an
+identical 326-event universe, with a pre-frozen event-level outcome
+specification (eligibility, benchmark onset, interval-censored delay,
+cooldown-aware alert aggregation, cluster-bootstrap uncertainty) and a
+training-side calibrated threshold
+(Sections~\ref{sec:threefam}--\ref{sec:ablation}).
+\item \textbf{Open, hash-verified artifacts} under a conservative
+redistribution boundary (Section~\ref{sec:repro}).
+\end{enumerate}
+
+This is scoped as a \emph{partial replication of the released artifact}
+plus an evaluation audit in the tradition of TESSERACT and the ``dos
+and don'ts'' line of work in security
+ML~\cite{Rougier2017,Gundersen2018,Pineau2021,Pendlebury2019,Arp2022};
+it makes no claim of being the first replication, no claim of severe
+leakage or performance collapse, and no real-market deployment claim.
+Following~\cite{Arp2022}, this is not a finger-pointing exercise: the
+upstream artifact is one of the few public, reusable baselines in this
+space, which is precisely what makes it worth auditing.
+
+\section{Background and the Upstream Artifact}\label{sec:background}
+
+The upstream repository~\cite{UpstreamRepo} (pinned commit
+\texttt{d71250d}) releases labelled market-feature matrices at 5\,s,
+15\,s and 25\,s aggregation, a feature-generation script, and a
+random-forest classifier script (MIT licence). Rows carry a
+\texttt{pump\_index} event key, a \texttt{date} bin label, twelve
+features (order-book rush indicators, trade/volume/price statistics,
+and four cyclical time-of-day encodings), and an outcome label
+\texttt{gt}. Throughout, \emph{row}, upstream's \emph{chunk}, and
+\emph{bin} refer interchangeably to one aggregation window of width
+$\Delta f$.
+
+Three provenance facts constrain interpretation. First, the
+repository's README describes manual pump-start labelling, but the
+public scripts initialize \texttt{gt=0} and do not expose the manual
+labelling step; label provenance is therefore unresolved from public
+materials. Second, ten event groups in the current matrices contain no
+positive row; we exclude them from event-level denominators rather than
+treating them as negative events. Third, the matrices cover roughly
+$\pm$24 hours around known events rather than a natural market stream,
+so no evaluation family on this artifact can estimate real-market
+prevalence, daily false alerts, or analyst workload. An inquiry about
+paper-era materials was sent to the corresponding author on 22 July
+2026, with the results of this study already in hand; its outcome will
+be reported here. [{\itshape STATUS AT SUBMISSION: pending --- resolves
+5 August 2026 under the pre-declared 14-day rule: ``no reply at
+submission time'' if unanswered}]
+
+\section{Methods}\label{sec:methods}
+
+\subsection{Models and Thresholds}\label{sec:models}
+
+The primary model is the released-code random forest
+(\texttt{n\_estimators=200}, \texttt{max\_depth=5},
+\texttt{min\_samples\_leaf=1}, \texttt{random\_state=1}). The
+paper-described configuration (\texttt{max\_depth=4},
+\texttt{min\_samples\_leaf=6}) is retained as a traceability
+sensitivity and never silently interchanged. Two decision thresholds
+are frozen: the replication anchor $\tau = 0.5$ (the released script's
+\texttt{predict()} behaviour under scikit-learn~\cite{Sklearn2011}),
+and a training-calibrated $\tau^{*}$ selected only from training-side
+out-of-fold probabilities by chunk-level F1 with ties resolved upward;
+the outer test is evaluated once, so that threshold selection cannot
+borrow information from the evaluation
+side~\cite{Varma2006,Cawley2010}.
+
+\subsection{Evaluation Families}\label{sec:evalfamilies}
+
+All families are compared on the identical row universe of the 326
+events common to all three frequencies (identical up to a
+per-checkpoint purge of at most 3 events in S2; exact at the primary
+checkpoint).
+
+\begin{itemize}
+\item \textbf{S0 --- row-level 5-fold} (upstream style): non-shuffled
+stratified row-level cross-validation. Rows of one event may appear on
+both sides of a split; S0 therefore reports chunk-level metrics only.
+\item \textbf{S1 --- event-exclusive 5-fold:} \texttt{GroupKFold} by
+\texttt{pump\_index}~\cite{Roberts2017}; $\tau^{*}$(fold) from
+event-grouped inner out-of-fold probabilities (four inner folds); every
+eligible event is scored exactly once by a model that never saw it.
+\item \textbf{S2 --- purged forward-time:} common-calendar,
+event-exclusive, outcome-label-free expanding assignment; events
+overlapping a calendar cutoff are excluded rather than split
+(\emph{purged}~\cite{LopezDePrado2018,Bergmeir2012}). $\tau^{*}$ at
+each checkpoint is selected on an expanding-time inner split of the
+training side (inner train fraction 0.8, with $\tau = 0.5$ as
+fallback); full selection rules are recorded in the frozen run
+configurations. The 80\% checkpoint is primary; the 40/50/60/70\%
+checkpoints are dependent sensitivity windows and are all reported. A
+disclosed pre-freeze structural pilot (Gate~0) inspected positive-event
+counts, so the checkpoints are not presented as preregistered.
+\end{itemize}
+
+\subsection{Frozen Event-Level Outcomes}\label{sec:outcomes}
+
+An event is \emph{eligible} only if its group has exactly one
+\texttt{gt=1} row (317 of 327 groups per frequency; test-enforced
+invariant). The one non-common group excluded per frequency in forming
+the 326-event universe is itself a no-positive group, so all 317
+eligible events lie inside the 326-event universe (326 = 317 eligible +
+9 remaining no-positive groups). The unique positive row's
+\texttt{date} is a \emph{benchmark reference onset-bin start} $t_0$,
+not verified economic truth. Because \texttt{date} is a bin label of
+width $\Delta f$, information is earliest available at
+$t_{\mathrm{available}} = \texttt{date} + \Delta f$, so onset-bin delay
+is interval-censored at $\Delta f$ and never reported as zero. Within
+each held-out event, alerts (score $\geq \tau$) are emitted in time
+order from the full window start under the paper's 30-minute cooldown;
+an early alert may legitimately suppress an onset-adjacent one. We
+report event detection rates (EDR): EDR$_{\mathrm{exact}}$ (emitted
+alert sourced from the \texttt{gt=1} row); EDR@30/60/120\,s over
+half-open windows $(t_0, t_0+H]$; Lead@30/60/120\,s over $[t_0-L,
+t_0]$ separately; delay conditional on detection within 120\,s with
+explicit denominators; and \emph{benchmark-negative alert episodes}
+(emitted alerts from \texttt{gt=0} rows) with 95\% percentile
+event-cluster bootstrap intervals ($n=2000$, seed 20260722; resampling
+whole events to respect within-event dependence~\cite{Field2007}). The
+phrases ``real false-alarm rate'', ``daily false alerts'' and ``analyst
+workload'' are prohibited by protocol. Average precision --- a
+precision-recall summary --- is the primary discrimination metric
+throughout, because PR-based measures remain informative under the
+extreme class imbalance of this benchmark where ROC-based summaries do
+not~\cite{Saito2015}.
+
+\section{Results}\label{sec:results}
+
+\subsection{Code-Level Replication}\label{sec:replication}
+
+The newly written implementation reproduces the released classifier
+script's aggregate precision, recall and F1 exactly --- to every
+reported decimal --- at all three frequencies on the released matrices
+(script-hash-verified rerun; artifacts:
+\texttt{gate0\_upstream\_stdout\_capture\_20260721},
+\texttt{gate0\_released\_code\_rf\_all\_v2\_20260721},
+\texttt{gate0\_baseline\_comparison\_20260721});
+see Table~\ref{tab:replication}.
+
+\begin{table}[t]
+\centering
+\caption{Code-level replication on the released matrices.
+$^*$AP is computed by the re-implementation only; the released script
+does not output probability scores. One row per frequency because the
+two sources agree exactly.}
+\label{tab:replication}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llcccc}
+\toprule
+Frequency & Source & Precision & Recall & F1 & AP \\
+\midrule
+25\,s & released script / re-implementation & 0.9658 & 0.8896 & 0.9261 & 0.9644$^*$ \\
+15\,s & released script / re-implementation & 0.9679 & 0.8549 & 0.9079 & 0.9472$^*$ \\
+5\,s  & released script / re-implementation & 0.9433 & 0.7350 & 0.8262 & 0.9026$^*$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Table III Traceability}\label{sec:tableiii}
+
+We were unable to recover the published Table~III values from the
+currently public artifact alone. The paper-described tree constraints,
+the released code defaults, and the post-paper released matrices
+differ, and the manual label-generation step is not public. The same
+authors' journal extension~\cite{LaMorgia2023} reports updated
+per-frequency results under its own evaluation protocol (5-fold
+cross-validation; the journal states it does not use a standard
+train/test split, employing a random 50/50 split only to select its
+rush-order detection threshold) on a 317-event Binance collection ---
+a count that exactly matches the eligible-event invariant of the
+currently released matrices (Section~\ref{sec:outcomes}), which is
+itself public evidence that the released matrices postdate the
+conference paper. We document these differences without adjudicating
+their source (artifact:
+\texttt{gate0\_paper\_described\_rf\_all\_20260721}); see
+Table~\ref{tab:tableiii}.
+
+\begin{table}[t]
+\centering
+\caption{Published Table~III values against the currently public
+artifact.}
+\label{tab:tableiii}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccc}
+\toprule
+Frequency & Config & Precision & Recall & F1 \\
+\midrule
+25\,s & published Table III & 0.937 & 0.913 & 0.918 \\
+25\,s & released artifact (script defaults) & 0.9658 & 0.8896 & 0.9261 \\
+25\,s & paper-described trees on current matrices & 0.9685 & 0.8738 & 0.9187 \\
+15\,s & published Table III & 0.913 & 0.844 & 0.877 \\
+15\,s & released artifact (script defaults) & 0.9679 & 0.8549 & 0.9079 \\
+15\,s & paper-described trees on current matrices & 0.9713 & 0.8549 & 0.9094 \\
+5\,s  & published Table III & 0.924 & 0.784 & 0.840 \\
+5\,s  & released artifact (script defaults) & 0.9433 & 0.7350 & 0.8262 \\
+5\,s  & paper-described trees on current matrices & 0.9604 & 0.6877 & 0.8015 \\
+25\,s & journal version, own protocol (5-fold CV)~\cite{LaMorgia2023} & 0.982 & 0.912 & 0.945 \\
+15\,s & journal version, own protocol (5-fold CV)~\cite{LaMorgia2023} & 0.964 & 0.849 & 0.900 \\
+5\,s  & journal version, own protocol (5-fold CV)~\cite{LaMorgia2023} & 0.946 & 0.729 & 0.824 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The deviations run in both directions (the released artifact exceeds
+the published F1 at 25\,s and 15\,s but trails it at 5\,s). The journal
+rows~\cite{LaMorgia2023} track the released-artifact rows far more
+closely than Table~III does, consistent with a benign artifact-drift
+reading in which the conference paper reports an earlier, smaller
+matrix generation; the split protocols nonetheless differ, so the
+correspondence is indicative rather than a replication target, and the
+drift's source remains undetermined from public materials.
+
+\subsection{Three Evaluation Families, Identical
+Universe}\label{sec:threefam}
+
+\begin{table}[t]
+\centering
+\caption{Three evaluation families on the identical universe. Cells
+give AP [95\% cluster CI]; S0/S1 pooled OOF, S2 single forward test.
+S0 here is refit on the 326-event common universe; its AP therefore
+differs in the third decimal from the full-matrix values of
+Section~\ref{sec:replication}.}
+\label{tab:families}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lccc}
+\toprule
+Family & 25\,s & 15\,s & 5\,s \\
+\midrule
+S0 row-level 5-fold & 0.9649 [0.949, 0.979] & 0.9462 [0.925, 0.965] & 0.9025 [0.876, 0.929] \\
+S1 event-exclusive 5-fold & 0.9636 [0.947, 0.978] & 0.9466 [0.925, 0.966] & 0.9007 [0.873, 0.927] \\
+S2 forward @80\% (primary) & 0.9781 [0.948, 0.999] & 0.9572 [0.917, 0.991] & 0.9072 [0.845, 0.957] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Discrimination is largely insensitive to the evaluation family
+(Table~\ref{tab:families}): event-exclusive and forward-time evaluation
+do not collapse the row-level result on this benchmark
+(Fig.~\ref{fig:pr}: the S0 and S1 precision--recall curves are nearly
+coincident at every frequency, and the S2 forward curve, on its own
+test subset, tracks them). Under a shared event resample, the paired
+$\Delta$AP(S1 $-$ S0) is $-0.0013$ $[-0.0039, +0.0009]$ at 25\,s,
+$+0.0004$ $[-0.0022, +0.0030]$ at 15\,s and $-0.0017$ $[-0.0051,
++0.0012]$ at 5\,s --- every interval covers zero. The forward family's
+nominally higher AP is a test-composition effect, not a family effect:
+restricting S1's out-of-fold predictions to exactly the 66 events of
+the S2 primary test set yields AP 0.9785 / 0.9591 / 0.9148 versus S2's
+0.9781 / 0.9572 / 0.9072 (analysis addendum A4; artifact
+\texttt{a4\_addendum\_v1\_20260723}). Cross-frequency AP differences
+are not interpreted as model-performance differences (test prevalences
+differ: 7.8, 6.6 and $4.9 \times 10^{-4}$ at the S2 primary
+checkpoint); the same caution applies across families, whose test
+universes differ --- the matched-universe comparison above addresses it
+directly.
+
+Event-level detection at the anchor threshold (EDR@120\,s): S1 pooled
+0.886 / 0.845 / 0.710; S2 primary 0.922 / 0.859 / 0.641 (25\,s /
+15\,s / 5\,s). At the S2 primary checkpoint EDR@120 coincides with
+EDR$_{\mathrm{exact}}$ because every within-120\,s detection
+originates at the onset bin itself (Section~\ref{sec:checkpoints}:
+median delay equals one bin width). (Artifacts:
+\texttt{formal\_s1\_s0\_v1\_20260722},
+\texttt{formal\_forward\_v1\_20260722}.)
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_pr_curves}
+\caption{Precision--recall by evaluation family and feature frequency.
+Three panels (25\,s / 15\,s / 5\,s). In each, the S0 row-level and S1
+event-exclusive out-of-fold curves (solid) are computed on the full
+326-event universe; the S2 forward @80\% curve (dashed) is on its
+66-event terminal test subset. S0 and S1 are nearly coincident
+throughout; discrimination does not collapse under event-exclusive or
+forward-time evaluation. (Generated by \texttt{src/make\_figures.py}
+from the per-row prediction artifacts, which are not redistributed; see
+the Data Availability statement.)}
+\label{fig:pr}
+\end{figure}
+
+\subsection{Forward-Time Checkpoints (S2, All
+Reported)}\label{sec:checkpoints}
+
+\begin{table}[t]
+\centering
+\caption{Forward-time checkpoints (S2, all reported). Cell format:
+AP / $\tau^{*}$ / EDR@120\,s. The 80\% checkpoint is primary.}
+\label{tab:checkpoints}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
+\toprule
+Checkpoint & 25\,s (AP / $\tau^{*}$ / EDR@120) & 15\,s (AP / $\tau^{*}$ / EDR@120) & 5\,s (AP / $\tau^{*}$ / EDR@120) \\
+\midrule
+40\% & .9479 / .287 / .821 & .9400 / .311 / .842 & .8585 / .395 / .663 \\
+50\% & .9413 / .312 / .866 & .9250 / .375 / .822 & .8461 / .354 / .637 \\
+60\% & .9508 / .132 / .898 & .9340 / .321 / .835 & .8702 / .163 / .654 \\
+70\% & .9712 / .471 / .914 & .9637 / .475 / .839 & .9232 / .306 / .710 \\
+\textbf{80\% (primary)} & \textbf{.9781 / .704 / .922} & \textbf{.9572 / .506 / .859} & \textbf{.9072 / .338 / .641} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At the primary checkpoint (Table~\ref{tab:checkpoints}),
+EDR$_{\mathrm{exact}}$ at the anchor threshold is 0.922 [95\% cluster
+CI 0.844--0.984] (25\,s), 0.859 [0.766--0.938] (15\,s) and 0.641
+[0.516--0.750] (5\,s). The calibrated threshold cuts both ways: at
+5\,s, $\tau^{*} = 0.338$ raises EDR$_{\mathrm{exact}}$ to 0.734 while
+benchmark-negative episodes rise from 0.11 to 0.14 per event, but at
+25\,s, $\tau^{*} = 0.704$ \emph{lowers} EDR$_{\mathrm{exact}}$ from
+0.922 to 0.875. $\tau^{*}$ itself is unstable across checkpoints
+(25\,s: 0.132 at 60\% versus 0.704 at 80\%) --- an expected symptom of
+score-scale shift between the inner model that selects the threshold
+and the larger outer model it is applied to. Median detection delay
+equals one bin width at every frequency --- the interval-censored
+minimum: detections occur at the onset bin itself.
+Checkpoint-to-checkpoint variation is non-monotone --- the 70\%
+checkpoint exceeds the primary at 15\,s and 5\,s --- and all
+checkpoints are reported (Fig.~\ref{fig:checkpoints}, left). The
+$\tau^{*}$ instability is visible in Fig.~\ref{fig:checkpoints}
+(right): at 25\,s it swings from 0.13 at the 60\% checkpoint to 0.70 at
+80\%. (Artifacts: \texttt{formal\_forward\_v1\_20260722}.)
+
+Per protocol, the full frozen outcome set is reported in analysis
+addendum A4 (artifact \texttt{a4\_addendum\_v1\_20260723}): EDR@30 =
+EDR@60 = EDR@120 in every family $\times$ frequency $\times$ threshold
+cell; Lead@120 ranges from 0.000 (25\,s forward) to 0.125 (5\,s forward
+at $\tau^{*}$); delay median, IQR and p90 all equal one bin width;
+detection denominators $n_{\mathrm{detected}}/n_{\mathrm{eligible}}$
+are 59/64, 55/64 and 41/64 at the forward primary anchor (281/317,
+268/317 and 225/317 for S1 pooled, 25\,s/15\,s/5\,s); and
+benchmark-negative episode means carry 95\% cluster intervals (5\,s
+forward: 0.11 [0.05, 0.19] at the anchor, 0.14 [0.06, 0.23] at
+$\tau^{*}$).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_checkpoints}
+\caption{Forward-time checkpoints: detection and threshold stability.
+Left: event detection rate @120\,s at the anchor threshold across the
+five forward checkpoints; the 5\,s frequency is uniformly lowest and
+the variation is non-monotone. Right: the calibrated threshold
+$\tau^{*}$ by checkpoint, illustrating its instability (e.g.\ 25\,s,
+0.13 at 60\% to 0.70 at 80\%) --- an expected symptom of
+inner-to-outer model score-scale shift. (Generated by
+\texttt{src/make\_figures.py} from the per-row prediction artifacts,
+which are not redistributed; see the Data Availability statement.)}
+\label{fig:checkpoints}
+\end{figure}
+
+\subsection{Time-of-Day Feature Ablation (S2)}\label{sec:ablation}
+
+Removing the four cyclical time-of-day columns and re-selecting
+$\tau^{*}$ on the ablated model's own inner validation
+(Table~\ref{tab:ablation}):
+
+\begin{table}[t]
+\centering
+\caption{Time-of-day feature ablation at the 80\% checkpoint (S2).}
+\label{tab:ablation}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
+\toprule
+Checkpoint (80\%) & 25\,s & 15\,s & 5\,s \\
+\midrule
+AP full $\rightarrow$ ablated & .9781 $\rightarrow$ .9612 & .9572 $\rightarrow$ .9470 & .9072 $\rightarrow$ .8805 \\
+EDR@120 (anchor) full $\rightarrow$ ablated & .922 $\rightarrow$ .875 & .859 $\rightarrow$ .797 & .641 $\rightarrow$ .641 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Across all fifteen combinations the AP reduction lies between 0.010 and
+0.028: the time-of-day features contribute a small, consistent
+increment and are not a dominant shortcut. By protocol, this is a
+descriptive sensitivity --- a drop does not prove leakage and a null
+effect does not prove its absence. The full fifteen-combination grid is
+given in Appendix~\ref{app:ablation} (artifact:
+\texttt{formal\_forward\_ablation\_v1\_20260722}).
+
+\section{Discussion}\label{sec:discussion}
+
+\subsection{Reading the Agreement between Evaluation
+Families}\label{sec:agreement}
+
+The three families are best read as three different measurement
+instruments pointed at the same released artifact, not as three
+attempts at one deployment quantity. Row-level cross-validation asks
+whether pump bins are separable when the model may have seen rows from
+the same event; event-exclusive validation asks whether the separation
+transfers to unseen events; the forward families add calendar order. On
+this benchmark the instruments largely agree
+(Section~\ref{sec:threefam}). The honest reading is narrow: within
+these $\pm$24-hour event windows, the order-book and volume features
+that distinguish onset bins from surrounding background are strong
+enough that event memorization is not the main driver of the reported
+scores. Had the forward families collapsed --- an outcome this protocol
+was equally prepared to report --- the row-level numbers would have had
+to be read as instrument artifacts. They did not collapse here.
+Agreement between instruments inside the benchmark, however, does not
+certify the benchmark: none of the families can speak for a natural
+market stream.
+
+\subsection{The 5-Second Degradation}\label{sec:fivesecond}
+
+Mechanically, the finest grid is the hardest one: at 5\,s the test
+prevalence is lowest, each bin aggregates the fewest trades, per-bin
+statistics are noisiest, and the pump impulse is spread over more bins,
+so the single onset bin is less reliably distinctive ---
+EDR$_{\mathrm{exact}}$ falls to 0.641 at the anchor threshold, and the
+calibrated threshold buys back part of it (0.734) at a small
+benchmark-negative cost. Beyond the mechanics, the author's
+reading\industryclause{} is that a pump is a burst produced by a
+coordinated group, not a smooth signal, and a 5-second grid is neither
+intrinsically fine nor coarse: whether the burst lands sharply inside
+one bin depends on the coordination behind it --- the group's size, its
+scripting, how quickly its participants act in concert --- and that
+structure varies across events and is invisible in exchange market
+data. This reading is interpretive, not established by the artifact.
+
+\subsection{What These Results Mean --- and Do Not Mean --- for
+Practitioners}\label{sec:practitioners}
+
+Two boundaries matter more than any score. First, a market-data
+detector sees the footprint, not the actor. The accounts and projects
+involved are effectively anonymous, and the interest networks behind
+promoted tokens are complex and opaque; nothing in these metrics
+identifies who is behind an event, and nothing here supports
+account-level accusation. Second,
+\ifneutralpositionality
+in the author's assessment of promotion channels,
+\else
+in the author's experience of promotion channels,
+\fi
+much of the visible ``community'' around such tokens is itself part of
+the operation: coordinated accounts posting near-identical promotional
+messages and staged momentum. The social layer around a pump is
+manipulated in the same way the order book is. A benchmark-negative
+episode rate on the order of one episode per ten events on these
+curated windows must therefore never be read as a real-world
+false-alert rate --- a natural stream contains organic volatility and
+staged chatter that this artifact cannot represent, and the true
+operational rate is neither measured nor bounded here. Results of this
+kind support triage: deciding where limited human attention should go,
+under review, with the burden of proof left where it belongs.
+
+\section{Limitations}\label{sec:limitations}
+
+Conclusions are bounded by the event-centred universe: $\pm$24-hour
+windows around known events cannot estimate real-market prevalence,
+daily false alerts, deployment calibration or analyst workload. Label
+provenance is unresolved from public materials; \texttt{gt=0} is never
+interpreted as confirmed absence of a pump, and the ten no-positive
+groups stay outside event denominators. The published-table gap is
+documented; its cause is left open. Results concern one dataset, one
+model family and one market period; the disclosed Gate-0 pilot means
+the forward checkpoints are not label-unseen.
+
+\section{Conclusion}\label{sec:conclusion}
+
+This audit asked whether the results of a widely reused pump-and-dump
+baseline survive scrutiny of their evaluation unit, and the answer is
+largely yes, with one telling exception. A newly written implementation
+reproduces the released classifier script exactly at all three
+frequencies, although the published Table~III values remain
+unrecoverable from currently public materials --- a traceability gap we
+document without adjudicating. On an identical 326-event universe,
+discrimination is largely insensitive to the evaluation family: the
+paired difference in average precision between row-level and
+event-exclusive evaluation has a 95\% cluster-bootstrap interval
+covering zero at every frequency, and the forward family's nominally
+higher score is a test-composition effect, not a family effect.
+Event-level detection nonetheless degrades at the finest frequency ---
+EDR$_{\mathrm{exact}}$ at the anchor threshold falls from 0.922 at
+25\,s to 0.641 at 5\,s at the primary forward checkpoint --- a weakness
+that row-level scores alone do not reveal. All of this holds only
+inside the event-centred benchmark; no real-market prevalence,
+false-alert or deployment claim follows. Studies that reuse this
+artifact should report event-exclusive and event-level metrics
+alongside row-level scores: on this benchmark the added cost of doing
+so is near zero, and the information gained at 5\,s is substantial.
+
+\section{Reproducibility Statement}\label{sec:repro}
+
+All protocols, code, tests, run configurations, split manifests,
+aggregate metrics and artifact hashes are public at \repolink; each
+results subsection above names its artifact directory. The outcome
+specification was frozen before the outer runs at the commit now
+identified as \texttt{c2736ed}. Archived run configurations record the
+same commit under its pre-rewrite identifier (\texttt{23089ce}): on 23
+July 2026, after the runs completed, the repository's commit
+\emph{metadata} (author identity; assistant trailers) was rewritten;
+amendment A3 records the authoritative old-to-new SHA map and the
+tree-hash-equality verification showing that file contents are
+unchanged commit-for-commit. Amendments A1/A2 changed claim boundaries
+only. Formal runs used Python 3.9 with scikit-learn 1.6.1, numpy
+1.26.4, pandas 2.2.3 (pinned in \texttt{requirements.txt}). Upstream
+matrices, raw transactions, the Telegram group list and the event file
+are not redistributed; reproducers obtain them from the original
+repository at the pinned commit and verify against recorded SHA-256
+hashes. The novelty statement in Section~\ref{sec:intro} rests on a
+citation-forward screen of works citing~\cite{LaMorgia2020} conducted
+on 21 July 2026, together with the literature search for this draft.
+
+\paragraph{Data availability.} See above: derived aggregate artifacts
+(metrics, split manifests, selection tables) and artifact hashes are
+public; upstream inputs are obtained from~\cite{UpstreamRepo} at the
+pinned commit. Per-row prediction files --- the inputs to
+Fig.~\ref{fig:pr} and to the A4 cluster bootstrap --- are not
+redistributed: they are regenerated deterministically (fixed seeds)
+from the pinned upstream inputs by \texttt{src/run\_formal\_cv.py} and
+\texttt{src/run\_formal\_forward.py}, and their SHA-256 hashes are
+recorded in
+\texttt{artifacts/a4\_addendum\_v1\_20260723/artifact\_manifest.csv}
+for verification. A results-complete release (tag
+\texttt{v0.2.0-results-freeze}, whose tree contains the frozen
+protocol, all artifact directories cited in
+Sections~\ref{sec:results}--\ref{sec:discussion}, the A4 addendum, and
+\texttt{CITATION.cff}) is additionally archived under a persistent DOI
+(Zenodo), providing a tamper-evident anchor independent of the
+rewritten Git history and of the upstream repository's continued
+availability.
+% NOTE: do NOT insert a real Zenodo DOI in the anonymized build -- the
+% Zenodo record names the author (see ANONYMIZATION_NOTES.md).
+[{\itshape Zenodo DOI to be inserted at preprint.}]
+
+\paragraph{Ethics.} This study analyses only the publicly released
+research artifact~\cite{UpstreamRepo}; no new data were collected from
+any platform or individual. Nothing in the analysis identifies accounts
+or individuals or supports account-level attribution, and the upstream
+Telegram-derived materials are not redistributed.
+
+\paragraph{AI-assistance disclosure.} Large-language-model assistants
+(Anthropic Claude) were used under the author's direction for code
+drafting, literature search, data processing, and manuscript editing,
+including drafting the Discussion from the author's dictated analysis.
+All protocol decisions, frozen specifications, claims, and the
+Discussion's analysis are the author's; all reported numbers were
+verified against hash-recorded artifacts. [{\itshape Adapt to venue
+disclosure format at submission.}]
+
+% ---------------------------------------------------------------------
+\begin{thebibliography}{28}
+
+\bibitem{LaMorgia2020}
+M. La Morgia, A. Mei, F. Sassi, J. Stefa. \emph{Pump and Dumps in the
+Bitcoin Era: Real Time Detection of Cryptocurrency Market
+Manipulations.} ICCCN 2020. DOI 10.1109/ICCCN49398.2020.9209660.
+
+\bibitem{UpstreamRepo}
+SystemsLab-Sapienza, \emph{pump-and-dump-dataset}, GitHub repository,
+commit \texttt{d71250d} (MIT licence).
+
+\bibitem{LaMorgia2023}
+M. La Morgia, A. Mei, F. Sassi, J. Stefa. \emph{The Doge of Wall
+Street: Analysis and Detection of Pump and Dump Cryptocurrency
+Manipulations.} ACM Transactions on Internet Technology
+23(1):11:1--11:28, 2023. DOI 10.1145/3561300 (arXiv:2105.00733).
+
+\bibitem{Sklearn2011}
+F. Pedregosa et al. \emph{Scikit-learn: Machine Learning in Python.}
+JMLR 12:2825--2830, 2011.
+
+\bibitem{LopezDePrado2018}
+M. L\'opez de Prado. \emph{Advances in Financial Machine Learning.}
+Wiley, 2018.
+
+\bibitem{Rougier2017}
+N. P. Rougier et al. \emph{Sustainable computational science: the
+ReScience initiative.} PeerJ Computer Science 3:e142, 2017.
+
+\bibitem{Kamps2018}
+J. Kamps, B. Kleinberg. \emph{To the moon: defining and detecting
+cryptocurrency pump-and-dumps.} Crime Science 7:18, 2018. DOI
+10.1186/s40163-018-0093-5.
+
+\bibitem{Xu2019}
+J. Xu, B. Livshits. \emph{The Anatomy of a Cryptocurrency
+Pump-and-Dump Scheme.} USENIX Security 2019, 1609--1625.
+arXiv:1811.10109.
+
+\bibitem{Victor2019}
+F. Victor, T. Hagemann. \emph{Cryptocurrency Pump and Dump Schemes:
+Quantification and Detection.} IEEE ICDMW 2019. DOI
+10.1109/ICDMW.2019.00045.
+
+\bibitem{Hamrick2021}
+J. T. Hamrick et al. \emph{An examination of the cryptocurrency
+pump-and-dump ecosystem.} Information Processing \& Management
+58(4):102506, 2021. DOI 10.1016/j.ipm.2021.102506.
+
+\bibitem{Nghiem2021}
+H. Nghiem, G. Muric, F. Morstatter, E. Ferrara. \emph{Detecting
+cryptocurrency pump-and-dump frauds using market and social signals.}
+Expert Systems with Applications 182:115284, 2021. DOI
+10.1016/j.eswa.2021.115284.
+
+\bibitem{Akyildirim2022}
+E. Akyildirim, M. Gambara, J. Teichmann, S. Zhou. \emph{Applications of
+Signature Methods to Market Anomaly Detection.} arXiv:2201.02441,
+2022.
+
+\bibitem{Chadalapaka2022}
+V. Chadalapaka, K. Chang, G. Mahajan, A. Vasil. \emph{Crypto Pump and
+Dump Detection via Deep Learning Techniques.} arXiv:2205.04646, 2022.
+
+\bibitem{Hu2023}
+S. Hu, Z. Zhang, S. Lu, B. He, et al. \emph{Sequence-Based Target Coin
+Prediction for Cryptocurrency Pump-and-Dump.} Proceedings of the ACM on
+Management of Data 1(1):6:1--6:19, 2023. DOI 10.1145/3588686.
+
+\bibitem{Moura2026}
+M. S. Moura, L. Baroni, E. Ogasawara, D. S. Mendon\c{c}a. \emph{HDP+:
+Leveraging Anomaly and Change Point Detection for Pump-and-Dump in
+Cryptocurrency Exchanges.} Journal of Information and Data Management
+17(1):194--203, 2026. DOI 10.5753/jidm.2026.5728.
+
+\bibitem{Losavio2026}
+L. Losavio, L. Persia, M. Sathe, D. Pasadakis. \emph{Fraud Detection in
+Cryptocurrency Markets with Spatio-Temporal Graph Neural Networks.}
+arXiv:2604.24590, 2026.
+
+\bibitem{Varma2006}
+S. Varma, R. Simon. \emph{Bias in error estimation when using
+cross-validation for model selection.} BMC Bioinformatics 7:91, 2006.
+DOI 10.1186/1471-2105-7-91.
+
+\bibitem{Field2007}
+C. A. Field, A. H. Welsh. \emph{Bootstrapping clustered data.} Journal
+of the Royal Statistical Society: Series B 69(3):369--390, 2007. DOI
+10.1111/j.1467-9868.2007.00593.x.
+
+\bibitem{Cawley2010}
+G. C. Cawley, N. L. C. Talbot. \emph{On Over-fitting in Model Selection
+and Subsequent Selection Bias in Performance Evaluation.} JMLR
+11:2079--2107, 2010.
+
+\bibitem{Bergmeir2012}
+C. Bergmeir, J. M. Ben\'itez. \emph{On the use of cross-validation for
+time series predictor evaluation.} Information Sciences 191:192--213,
+2012. DOI 10.1016/j.ins.2011.12.028.
+
+\bibitem{Roberts2017}
+D. R. Roberts et al. \emph{Cross-validation strategies for data with
+temporal, spatial, hierarchical, or phylogenetic structure.} Ecography
+40(8):913--929, 2017. DOI 10.1111/ecog.02881.
+
+\bibitem{Gundersen2018}
+O. E. Gundersen, S. Kjensmo. \emph{State of the Art: Reproducibility in
+Artificial Intelligence.} AAAI 2018. DOI 10.1609/aaai.v32i1.11503.
+
+\bibitem{Pineau2021}
+J. Pineau et al. \emph{Improving Reproducibility in Machine Learning
+Research (A Report from the NeurIPS 2019 Reproducibility Program).}
+JMLR 22(164):1--20, 2021. arXiv:2003.12206.
+
+\bibitem{Kapoor2023}
+S. Kapoor, A. Narayanan. \emph{Leakage and the reproducibility crisis
+in machine-learning-based science.} Patterns 4(9):100804, 2023. DOI
+10.1016/j.patter.2023.100804.
+
+\bibitem{Pendlebury2019}
+F. Pendlebury, F. Pierazzi, R. Jordaney, J. Kinder, L. Cavallaro.
+\emph{TESSERACT: Eliminating Experimental Bias in Malware
+Classification across Space and Time.} USENIX Security 2019, 729--746.
+
+\bibitem{Arp2022}
+D. Arp, E. Quiring, F. Pendlebury, A. Warnecke, F. Pierazzi, C.
+Wressnegger, et al. \emph{Dos and Don'ts of Machine Learning in
+Computer Security.} USENIX Security 2022, 3971--3988.
+
+\bibitem{Saito2015}
+T. Saito, M. Rehmsmeier. \emph{The Precision-Recall Plot Is More
+Informative than the ROC Plot When Evaluating Binary Classifiers on
+Imbalanced Datasets.} PLOS ONE 10(3):e0118432, 2015. DOI
+10.1371/journal.pone.0118432.
+
+\bibitem{Bello2023}
+A. S. Bello, J. Schneider, R. Di Pietro. \emph{LLD: A Low Latency
+Detection Solution to Thwart Cryptocurrency Pump \& Dumps.} IEEE ICBC
+2023. DOI 10.1109/ICBC56567.2023.10174922.
+
+\end{thebibliography}
+
+% ---------------------------------------------------------------------
+\appendix
+
+\section{Full Time-of-Day Ablation Grid (S2, All Fifteen
+Combinations)}\label{app:ablation}
+
+Removing the four cyclical time-of-day columns and re-selecting
+$\tau^{*}$ on the ablated model's own inner validation; artifact:
+\texttt{formal\_forward\_ablation\_v1\_20260722} (full model:
+\texttt{formal\_forward\_v1\_20260722}). See
+Table~\ref{tab:ablationgrid}.
+
+\begin{table}[t]
+\centering
+\caption{Full time-of-day ablation grid (S2, all fifteen
+combinations).}
+\label{tab:ablationgrid}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{llccccccc}
+\toprule
+Freq. & Ckpt. & AP (full) & AP (ablated) & $\Delta$AP &
+\begin{tabular}[c]{@{}c@{}}EDR@120 anchor\\(full)\end{tabular} &
+\begin{tabular}[c]{@{}c@{}}EDR@120 anchor\\(ablated)\end{tabular} &
+$\tau^{*}$ (full) & $\tau^{*}$ (ablated) \\
+\midrule
+25\,s & 40\% & 0.9479 & 0.9322 & $-0.0157$ & 0.821 & 0.805 & 0.287 & 0.178 \\
+25\,s & 50\% & 0.9413 & 0.9204 & $-0.0209$ & 0.866 & 0.803 & 0.312 & 0.125 \\
+25\,s & 60\% & 0.9508 & 0.9336 & $-0.0171$ & 0.898 & 0.850 & 0.132 & 0.131 \\
+25\,s & 70\% & 0.9712 & 0.9575 & $-0.0137$ & 0.914 & 0.871 & 0.471 & 0.254 \\
+25\,s & 80\% & 0.9781 & 0.9612 & $-0.0169$ & 0.922 & 0.875 & 0.704 & 0.582 \\
+15\,s & 40\% & 0.9400 & 0.9211 & $-0.0189$ & 0.842 & 0.800 & 0.311 & 0.303 \\
+15\,s & 50\% & 0.9250 & 0.9096 & $-0.0153$ & 0.822 & 0.796 & 0.375 & 0.292 \\
+15\,s & 60\% & 0.9340 & 0.9163 & $-0.0177$ & 0.835 & 0.811 & 0.321 & 0.288 \\
+15\,s & 70\% & 0.9637 & 0.9502 & $-0.0136$ & 0.839 & 0.817 & 0.475 & 0.426 \\
+15\,s & 80\% & 0.9572 & 0.9470 & $-0.0103$ & 0.859 & 0.797 & 0.506 & 0.458 \\
+5\,s  & 40\% & 0.8585 & 0.8375 & $-0.0210$ & 0.663 & 0.637 & 0.395 & 0.366 \\
+5\,s  & 50\% & 0.8461 & 0.8241 & $-0.0220$ & 0.637 & 0.618 & 0.354 & 0.325 \\
+5\,s  & 60\% & 0.8702 & 0.8446 & $-0.0255$ & 0.654 & 0.630 & 0.163 & 0.280 \\
+5\,s  & 70\% & 0.9232 & 0.8955 & $-0.0277$ & 0.710 & 0.667 & 0.306 & 0.260 \\
+5\,s  & 80\% & 0.9072 & 0.8805 & $-0.0267$ & 0.641 & 0.641 & 0.338 & 0.288 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
