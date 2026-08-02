@@ -25,5 +25,5 @@ keywords:
   - forward-time evaluation
   - leakage
 license: MIT
-version: v0.1.0-protocol-freeze
-date-released: "2026-07-23"
+version: v0.2.0-results-freeze
+date-released: "2026-07-31"
