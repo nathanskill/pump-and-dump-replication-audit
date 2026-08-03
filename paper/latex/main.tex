@@ -687,16 +687,23 @@ from the pinned upstream inputs by \texttt{src/run\_formal\_cv.py} and
 recorded in
 \texttt{artifacts/a4\_addendum\_v1\_20260723/artifact\_manifest.csv}
 for verification. A results-complete release (tag
-\texttt{v0.2.0-results-freeze}, whose tree contains the frozen
+\texttt{v0.2.1-results-freeze}, whose tree contains the frozen
 protocol, all artifact directories cited in
 Sections~\ref{sec:results}--\ref{sec:discussion}, the A4 addendum, and
-\texttt{CITATION.cff}) is additionally archived under a persistent DOI
-(Zenodo), providing a tamper-evident anchor independent of the
+\texttt{CITATION.cff}) is additionally archived under a persistent DOI,
+providing a tamper-evident anchor independent of the
 rewritten Git history and of the upstream repository's continued
 availability.
-% NOTE: do NOT insert a real Zenodo DOI in the anonymized build -- the
-% Zenodo record names the author (see ANONYMIZATION_NOTES.md).
+% NOTE: do NOT insert a real DOI in the anonymized build, and do not name
+% the archive: the deposit record names the author. FC 2027 expressly
+% permits non-anonymous preprints, so naming the platform would not breach
+% the CFP -- but withholding it costs nothing and removes a free lookup.
+% See ANONYMIZATION_NOTES.md.
+\ifanonymous
+[{\itshape Archive DOI withheld for anonymous review.}]
+\else
 [{\itshape Zenodo DOI to be inserted at preprint.}]
+\fi
 
 \paragraph{Ethics.} This study analyses only the publicly released
 research artifact~\cite{UpstreamRepo}; no new data were collected from

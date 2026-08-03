@@ -135,3 +135,55 @@ None of these change scientific content; listed so nothing is silently lost.
       "Sydney", the email, and the Zenodo DOI before upload.
 - [ ] Check page budget: FC 2027 regular papers = 15 pages + references and
       appendices.
+
+---
+
+## 2026-08-04 — verification pass and two changes
+
+Verified by resolving the `\ifanonymous` conditional line-by-line in both
+directions and scanning each emitted build. Environments balance in both;
+all 28 `\cite` keys resolve against 28 `\bibitem`s with no unused entries;
+both `\includegraphics` targets exist as PDF.
+
+**Anonymous build: clean.** No author name, no `github.com`/`nathanskill`,
+no archive name, no DOI, no employer, no affiliation string, no email
+address, no acknowledgements section.
+
+**Named build: leaks exactly what it should** — author (L79, L82),
+repository (L56), affiliation (L81), email (L82), archive name (L705).
+
+### Change 1 — stale release tag
+
+The Data-availability paragraph named `v0.2.0-results-freeze`. That is not
+the archival target. On 2026-08-02 the `CITATION.cff` version error was
+fixed by cutting `v0.2.1-results-freeze` rather than force-moving the
+published `v0.2.0` tag; the fix was applied to `CITATION.cff` alone, and
+three places that a reader acts on were left pointing at the old tag
+(`README.md`, the Markdown manuscript draft, and this LaTeX source).
+Releasing from `v0.2.0` would make the archive read the superseded
+`CITATION.cff` and mint the record as `v0.1.0-protocol-freeze`, reinstating
+the exact defect `v0.2.1` exists to avoid. All three now name `v0.2.1`.
+
+### Change 2 — archive name is now conditional
+
+Previously both builds read "archived under a persistent DOI (Zenodo)"
+followed by the placeholder "Zenodo DOI to be inserted at preprint."
+
+The FC 2027 CFP expressly permits non-anonymous preprints ("It is
+acceptable ... for submitted papers to be published online in non-anonymous
+form"), so naming the platform would **not** have breached the call. But the
+deposit record names the author, and the record will be public before the
+submission deadline. Naming the archive hands a reviewer a one-search
+lookup for no benefit. The anonymous build now reads "Archive DOI withheld
+for anonymous review"; the named build is unchanged.
+
+### Open blocker, not an anonymisation issue
+
+**There is no TeX toolchain on this machine** — no `pdflatex`, `xelatex`,
+`latexmk` or `tectonic`, and no Homebrew to install one. FC requires a PDF.
+The build has therefore never been executed and the true page count is
+unknown; the estimate is ~10.3 pages of prose plus two figures, tables and
+references, against a 15-page limit (plus references and appendix) for a
+regular submission. Resolve this well before 17 September rather than on
+the day: either install BasicTeX/MacTeX, or upload `main.tex`, `llncs.cls`,
+`splncs04.bst` and `figures/` to Overleaf, which needs no local install.
