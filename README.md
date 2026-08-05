@@ -91,7 +91,11 @@ Per-row prediction files are reproducibility evidence generated locally and are 
 
 ## Archival and release path
 
-The intended venue is Financial Cryptography and Data Security 2027; the persistent identifier for the repository is a Zenodo DOI. No step of the plan depends on a preprint server accepting or endorsing the author.
+The intended venue is Financial Cryptography and Data Security 2027. The results-complete release `v0.2.1-results-freeze` is archived under a persistent DOI:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21805707.svg)](https://doi.org/10.5281/zenodo.21805707)
+
+No step of the plan depends on a preprint server accepting or endorsing the author.
 
 1. **Zenodo (primary).** Publish a GitHub release of tag `v0.2.1-results-freeze`; Zenodo archives it and reads `CITATION.cff`. The two earlier tags are not the archival target: `v0.2.0-results-freeze` carries the same result artifacts but a superseded `CITATION.cff` that would make Zenodo mint the record under the wrong version. `v0.2.1` exists to fix that without rewriting a published tag. Zenodo has no endorsement or affiliation gate ([policies](https://about.zenodo.org/policies/), checked 2026-08-02). Known limitation: Zenodo is not indexed by Google Scholar ([Zenodo FAQ](https://support.zenodo.org/help/en-gb/18-general/61-is-zenodo-indexed-by-google-scholar), checked 2026-08-02), so Scholar discoverability has to come from the venue, not the DOI.
 2. **Cryptology ePrint Archive (optional, non-blocking).** Posting does not prevent venue submission ([operations](https://eprint.iacr.org/operations.html), checked 2026-08-02), but this work contains no cryptographic construction — its fit is venue adjacency, and rejection as out of scope is a real possibility. Optional upside, never a dependency.
