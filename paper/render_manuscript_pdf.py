@@ -21,8 +21,8 @@ from reportlab.platypus import (
 )
 
 BASE = Path(__file__).resolve().parent
-SRC = BASE / "manuscript_draft_v0.5.md"
-OUT = BASE / "manuscript_draft_v0.5.pdf"
+SRC = BASE / "manuscript_v1.0.md"
+OUT = BASE / "manuscript_v1.0.pdf"
 
 S = {
     "title": ParagraphStyle("title", fontName="Times-Bold", fontSize=15.5,

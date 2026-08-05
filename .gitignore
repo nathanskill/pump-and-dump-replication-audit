@@ -19,3 +19,4 @@ paper/figures/
 # for Overleaf upload; not part of this repository's licensed content.
 paper/latex/llncs.cls
 paper/latex/splncs04.bst
+paper/manuscript_v*
