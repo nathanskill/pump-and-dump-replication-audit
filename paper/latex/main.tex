@@ -718,7 +718,10 @@ availability.
 \ifanonymous
 [{\itshape Archive DOI withheld for anonymous review.}]
 \else
-DOI: \href{https://doi.org/10.5281/zenodo.21805707}{10.5281/zenodo.21805707}.
+% \href needs hyperref, which this project does not load (loading it late
+% shifts LNCS float placement). \url comes from the url package, already
+% loaded, and prints the same address.
+DOI: \url{https://doi.org/10.5281/zenodo.21805707}.
 \fi
 
 \paragraph{Ethics.} This study analyses only the publicly released
@@ -733,8 +736,12 @@ drafting, literature search, data processing, and manuscript editing,
 including drafting the Discussion from the author's dictated analysis.
 All protocol decisions, frozen specifications, claims, and the
 Discussion's analysis are the author's; all reported numbers were
-verified against hash-recorded artifacts. [{\itshape Adapt to venue
-disclosure format at submission.}]
+verified against hash-recorded artifacts.
+% The bracketed note "Adapt to venue disclosure format at submission" stood
+% here until the venue was fixed. FC 2027 sets no prescribed wording for
+% AI-assistance disclosure, so the paragraph stands as written and the note
+% is discharged. Springer's mandatory "Disclosure of Interests" heading is a
+% camera-ready obligation and is added there, not here.
 
 % ---------------------------------------------------------------------
 \begin{thebibliography}{28}

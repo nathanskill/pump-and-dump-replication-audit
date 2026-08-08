@@ -187,3 +187,91 @@ references, against a 15-page limit (plus references and appendix) for a
 regular submission. Resolve this well before 17 September rather than on
 the day: either install BasicTeX/MacTeX, or upload `main.tex`, `llncs.cls`,
 `splncs04.bst` and `figures/` to Overleaf, which needs no local install.
+
+---
+
+## 2026-08-09 — pre-submission checklist closed out
+
+The open blocker recorded on 2026-08-04 ("no TeX toolchain on this machine")
+is resolved: the project was compiled on Overleaf (TeX Live 2025, pdfLaTeX).
+**13 pages, 0 errors.** The FC limit is 15 pages *excluding* references and
+appendices; the body runs to mid-page 11, references to mid-page 13, and
+Appendix A sits on page 13 — so the real headroom is about four body pages,
+not two. The page-count worry that ran through this file was unfounded.
+
+### Checklist, resolved
+
+- [x] **Sect. 2 upstream-inquiry status line.** Resolved 5 Aug 2026 under the
+      pre-declared Scenario A rule (no reply received); the placeholder is
+      replaced by the declared text.
+- [x] **`\neutralpositionality` toggle: stays FALSE.** The two positionality
+      clauses are kept in the anonymous build. The CFP bans "author names,
+      affiliations, acknowledgments, or obvious references"; "several years
+      working in the retail-trading industry" is none of those, names no
+      employer, and does not narrow the author to a findable person. It is
+      also load-bearing — it is the paper's only statement of why the author
+      reads the 5 s degradation the way Sect. 5.2 reads it. Neutralising it
+      would cost an argument to buy no anonymity.
+- [x] **Keywords confirmed** as they stand.
+- [x] **`\anonymoustrue` verified**, and the compiled PDF — not the source —
+      was scanned page by page with pypdf for "Yu", "Zhennan", "Nathan",
+      "nathanskill", "Sydney", the email, "zenodo", "10.5281" and
+      "Independent Researcher". All absent. The one `github` hit is
+      reference [2], the upstream artifact being audited, which must be
+      cited. Document-info metadata carries no author string.
+- [x] **Page budget** checked against the correct ruler (above).
+
+### Item E6 was not fully discharged, and this is the correction
+
+E6 listed three bracketed placeholders to resolve before submission. Two were
+resolved on 2026-08-04. The third — *[Adapt to venue disclosure format at
+submission.]*, trailing the AI-assistance disclosure — was missed, and it
+survived into the compiled PDF on page 11. It was caught on 2026-08-09 by a
+scan for bracketed text in the extracted PDF, i.e. by looking at the artifact
+rather than at the source.
+
+It is now removed. FC 2027 prescribes no wording for AI-assistance
+disclosure, so the paragraph stands as written and the instruction is
+discharged; a comment in `main.tex` records that, so the note cannot read as
+an oversight later.
+
+**Lesson worth keeping:** the earlier verification pass resolved the
+`\ifanonymous` conditional by hand and scanned the *source*. That method
+cannot see a placeholder in unconditional prose. Scan the compiled PDF.
+
+### Named build was broken and is now fixed
+
+The named build could never have compiled: the Data-availability paragraph
+used `\href` while the project loads neither `hyperref` nor anything that
+defines it. Only the anonymous branch had ever been built, so the defect was
+invisible. `\href` is replaced by `\url` (the `url` package is already
+loaded), which prints the same address without pulling `hyperref` in late and
+disturbing LNCS float placement.
+
+### Camera-ready obligations, recorded now so they are not improvised in December
+
+Due 22 December 2026 (final pre-proceedings; the Springer camera-ready is a
+separate, later deadline):
+
+1. **Springer requires a third-level "Disclosure of Interests" heading in
+   9 pt beneath the acknowledgments, even when there is nothing to declare.**
+   It is absent, correctly, from the anonymous build.
+2. That statement should name the retail-FX/CFD employment and state that no
+   employer data or resources were used. Not naming it is defensible — the
+   FC ethics page triggers on an organisation that "may gain or lose
+   financially through this publication", which a broker does not, from a
+   replication of a public Bitcoin pump-and-dump classifier — but Sect. 5.2
+   already invokes industry experience as grounds for a reading, so silence
+   in the disclosure would sit worse than the sentence itself.
+3. Reference list is ordered neither by first citation nor alphabetically.
+   `splncs04.bst` is in the project; the entries are inline `\bibitem`s, so
+   fixing it means converting to a `.bib` or renumbering by first citation.
+4. Alt text for Figs. 1–2 and Tables 1–6.
+5. Fig. 2's three frequency series are distinguished by colour alone; give
+   them distinct markers or dash patterns so they survive greyscale print.
+6. The author list and corresponding author freeze at camera-ready.
+7. If accepted, tell the chairs in one line that the Zenodo deposit already
+   exists — the IFCA copyright form's retained right 4 asks authors to inform
+   IFCA of pre-publication distribution. The CFP's explicit blessing of
+   non-anonymous preprints is the operative permission, so this is courtesy,
+   not a cure for a breach.
