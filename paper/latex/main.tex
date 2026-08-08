@@ -107,12 +107,20 @@ between row-level and event-exclusive families has a 95\%
 cluster-bootstrap interval covering zero at every frequency, and a
 matched-universe comparison shows the forward family's nominally higher
 score to be a test-composition effect. Third, event-level detection
-nonetheless degrades at the finest frequency (event detection rate
-0.64--0.92 at the released decision threshold), and ablating the four
-time-of-day features lowers forward average precision by only
-0.010--0.028. All conclusions are restricted to the event-centred public
-benchmark; no real-market prevalence, false-alert or deployment claim is
-made. Code, protocols and hash-verified aggregate artifacts are public.
+nonetheless degrades sharply with aggregation frequency: at the primary
+forward checkpoint the event detection rate at the released threshold
+falls from 0.922 at 25\,s to 0.641 at 5\,s, a weakness that row-level
+scores alone do not reveal; ablating the four time-of-day features
+lowers forward average precision by only 0.010--0.028. Taken together,
+the evaluation-design choice the literature scrutinises most --- the
+split family --- does not materially inflate discrimination here, while
+one it scrutinises less --- the aggregation frequency, read at event
+level --- does. All conclusions are restricted to the event-centred
+public benchmark; no real-market prevalence, false-alert or deployment
+claim is made. Studies that reuse this artifact should report
+event-exclusive and event-level metrics alongside row-level scores: on
+this benchmark the added cost is near zero, and the information gained
+at 5\,s is substantial.
 
 \keywords{Cryptocurrency pump-and-dump \and Replication \and Evaluation
 methodology \and Machine learning for security \and Fraud detection.}
@@ -157,21 +165,22 @@ None combines event-exclusive and purged forward-time evaluation with a
 pre-frozen event-level outcome specification and cluster-bootstrap
 uncertainty.
 
-This paper asks one question: \textbf{to what extent can the released
-baseline's results be traced, replicated, and shown to be robust to the
-choice of evaluation family?} Contributions:
+This paper asks one question: \textbf{does the choice of evaluation
+family change what this benchmark says --- and if so, which metric
+reveals it?} Contributions:
 
 \begin{enumerate}
 \item \textbf{A verified re-implementation.} A newly written
 implementation whose aggregate precision, recall and F1 exactly match
 the released classifier script at all three frequencies on the released
 matrices (Section~\ref{sec:replication}).
-\item \textbf{A documented traceability gap.} The published Table~III
-values could not be recovered from the currently public artifact alone;
-we record the parameter, code and matrix differences and leave their
-source open (Section~\ref{sec:tableiii}).
-\item \textbf{A three-family evaluation-sensitivity audit} on an
-identical 326-event universe, with a pre-frozen event-level outcome
+\item \textbf{The published Table~III cannot be recovered from
+currently public materials.} We record the parameter, code and matrix
+differences and leave their source open
+(Section~\ref{sec:tableiii}).
+\item \textbf{Discrimination is insensitive to the split family on an
+identical 326-event universe; event-level detection is not insensitive
+to frequency.} Established under a pre-frozen event-level outcome
 specification (eligibility, benchmark onset, interval-censored delay,
 cooldown-aware alert aggregation, cluster-bootstrap uncertainty) and a
 training-side calibrated threshold
