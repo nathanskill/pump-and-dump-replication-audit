@@ -40,6 +40,12 @@
 \usepackage{url}
 \usepackage{cite}          % compresses [7,8,9,10] -> [7-10]
 
+% Long artifact directory names set in \texttt are unbreakable and
+% overflow the LNCS text block. Permit a line break after each text-mode
+% underscore. Math-mode subscripts are unaffected.
+\let\origtextunderscore\textunderscore
+\renewcommand{\textunderscore}{\origtextunderscore\allowbreak}
+
 % ----------------------- build toggles --------------------------------
 \newif\ifanonymous
 \anonymoustrue             % <<< FLIP HERE: \anonymoustrue = double-blind
@@ -235,9 +241,9 @@ version.
 
 The primary model is the released-code random forest
 (\texttt{n\_estimators=200}, \texttt{max\_depth=5},
-\texttt{min\_\allowbreak samples\_\allowbreak leaf=1}, \texttt{random\_state=1}). The
+\texttt{min\_samples\_leaf=1}, \texttt{random\_state=1}). The
 paper-described configuration (\texttt{max\_depth=4},
-\texttt{min\_\allowbreak samples\_\allowbreak leaf=6}) is retained as a traceability
+\texttt{min\_samples\_leaf=6}) is retained as a traceability
 sensitivity and never silently interchanged. Two decision thresholds
 are frozen: the replication anchor $\tau = 0.5$ (the released script's
 \texttt{predict()} behaviour under scikit-learn~\cite{Sklearn2011}),
@@ -314,9 +320,9 @@ The newly written implementation reproduces the released classifier
 script's aggregate precision, recall and F1 exactly --- to every
 reported decimal --- at all three frequencies on the released matrices
 (script-hash-verified rerun; artifacts:
-\texttt{gate0\_\allowbreak upstream\_\allowbreak stdout\_\allowbreak capture\_\allowbreak 20260721},
-\texttt{gate0\_\allowbreak released\_\allowbreak code\_\allowbreak rf\_\allowbreak all\_\allowbreak v2\_\allowbreak 20260721},
-\texttt{gate0\_\allowbreak baseline\_\allowbreak comparison\_\allowbreak 20260721});
+\texttt{gate0\_upstream\_stdout\_capture\_20260721},
+\texttt{gate0\_released\_code\_rf\_all\_v2\_20260721},
+\texttt{gate0\_baseline\_comparison\_20260721});
 see Table~\ref{tab:replication}.
 
 \begin{table}[t]
@@ -355,7 +361,7 @@ currently released matrices (Section~\ref{sec:outcomes}), which is
 itself public evidence that the released matrices postdate the
 conference paper. We document these differences without adjudicating
 their source (artifact:
-\texttt{gate0\_\allowbreak paper\_\allowbreak described\_\allowbreak rf\_\allowbreak all\_\allowbreak 20260721}); see
+\texttt{gate0\_paper\_described\_rf\_all\_20260721}); see
 Table~\ref{tab:tableiii}.
 
 \begin{table}[t]
@@ -431,7 +437,7 @@ nominally higher AP is a test-composition effect, not a family effect:
 restricting S1's out-of-fold predictions to exactly the 66 events of
 the S2 primary test set yields AP 0.9785 / 0.9591 / 0.9148 versus S2's
 0.9781 / 0.9572 / 0.9072 (analysis addendum A4; artifact
-\texttt{a4\_\allowbreak addendum\_\allowbreak v1\_\allowbreak 20260723}). Cross-frequency AP differences
+\texttt{a4\_addendum\_v1\_20260723}). Cross-frequency AP differences
 are not interpreted as model-performance differences (test prevalences
 differ: 7.8, 6.6 and $4.9 \times 10^{-4}$ at the S2 primary
 checkpoint); the same caution applies across families, whose test
@@ -444,8 +450,8 @@ Event-level detection at the anchor threshold (EDR@120\,s): S1 pooled
 EDR$_{\mathrm{exact}}$ because every within-120\,s detection
 originates at the onset bin itself (Section~\ref{sec:checkpoints}:
 median delay equals one bin width). (Artifacts:
-\texttt{formal\_\allowbreak s1\_\allowbreak s0\_\allowbreak v1\_\allowbreak 20260722},
-\texttt{formal\_\allowbreak forward\_\allowbreak v1\_\allowbreak 20260722}.)
+\texttt{formal\_s1\_s0\_v1\_20260722},
+\texttt{formal\_forward\_v1\_20260722}.)
 
 \begin{figure}[t]
 \centering
@@ -503,10 +509,10 @@ checkpoint exceeds the primary at 15\,s and 5\,s --- and all
 checkpoints are reported (Fig.~\ref{fig:checkpoints}, left). The
 $\tau^{*}$ instability is visible in Fig.~\ref{fig:checkpoints}
 (right): at 25\,s it swings from 0.13 at the 60\% checkpoint to 0.70 at
-80\%. (Artifacts: \texttt{formal\_\allowbreak forward\_\allowbreak v1\_\allowbreak 20260722}.)
+80\%. (Artifacts: \texttt{formal\_forward\_v1\_20260722}.)
 
 Per protocol, the full frozen outcome set is reported in analysis
-addendum A4 (artifact \texttt{a4\_\allowbreak addendum\_\allowbreak v1\_\allowbreak 20260723}): EDR@30 =
+addendum A4 (artifact \texttt{a4\_addendum\_v1\_20260723}): EDR@30 =
 EDR@60 = EDR@120 in every family $\times$ frequency $\times$ threshold
 cell; Lead@120 ranges from 0.000 (25\,s forward) to 0.125 (5\,s forward
 at $\tau^{*}$); delay median, IQR and p90 all equal one bin width;
@@ -560,7 +566,7 @@ increment and are not a dominant shortcut. By protocol, this is a
 descriptive sensitivity --- a drop does not prove leakage and a null
 effect does not prove its absence. The full fifteen-combination grid is
 given in Appendix~\ref{app:ablation} (artifact:
-\texttt{formal\_\allowbreak forward\_\allowbreak ablation\_\allowbreak v1\_\allowbreak 20260722}).
+\texttt{formal\_forward\_ablation\_v1\_20260722}).
 
 \section{Discussion}\label{sec:discussion}
 
@@ -692,10 +698,10 @@ public; upstream inputs are obtained from~\cite{UpstreamRepo} at the
 pinned commit. Per-row prediction files --- the inputs to
 Fig.~\ref{fig:pr} and to the A4 cluster bootstrap --- are not
 redistributed: they are regenerated deterministically (fixed seeds)
-from the pinned upstream inputs by \texttt{src/run\_\allowbreak formal\_\allowbreak cv.py} and
-\texttt{src/run\_\allowbreak formal\_\allowbreak forward.py}, and their SHA-256 hashes are
+from the pinned upstream inputs by \texttt{src/run\_formal\_cv.py} and
+\texttt{src/run\_formal\_forward.py}, and their SHA-256 hashes are
 recorded in
-\texttt{artifacts/a4\_\allowbreak addendum\_\allowbreak v1\_\allowbreak 20260723/artifact\_\allowbreak manifest.csv}
+\texttt{artifacts/a4\_addendum\_v1\_20260723/artifact\_manifest.csv}
 for verification. A results-complete release (tag
 \texttt{v0.2.1-results-freeze}, whose tree contains the frozen
 protocol, all artifact directories cited in
@@ -881,8 +887,8 @@ Combinations)}\label{app:ablation}
 
 Removing the four cyclical time-of-day columns and re-selecting
 $\tau^{*}$ on the ablated model's own inner validation; artifact:
-\texttt{formal\_\allowbreak forward\_\allowbreak ablation\_\allowbreak v1\_\allowbreak 20260722} (full model:
-\texttt{formal\_\allowbreak forward\_\allowbreak v1\_\allowbreak 20260722}). See
+\texttt{formal\_forward\_ablation\_v1\_20260722} (full model:
+\texttt{formal\_forward\_v1\_20260722}). See
 Table~\ref{tab:ablationgrid}.
 
 \begin{table}[t]
